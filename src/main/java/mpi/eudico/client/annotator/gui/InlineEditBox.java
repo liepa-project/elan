@@ -824,7 +824,7 @@ public class InlineEditBox extends JPanel implements ActionListener,
                                             Exception {
                 String langRef = annotation.getTier().getLangRef();
                 SpellChecker checker = SpellCheckerRegistry.getInstance().getSpellChecker(langRef);
-                String[] textElements = textAreaToCheck.getText().split("\\b");
+                String[] textElements = textAreaToCheck.getText().split("(?<=[\s,.:;\"\']|^)");
                 Highlighter highlighter = textAreaToCheck.getHighlighter();
 
                 if (spellingErrorPainter == null) {
