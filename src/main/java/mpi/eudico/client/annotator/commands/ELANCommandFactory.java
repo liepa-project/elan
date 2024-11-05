@@ -908,6 +908,10 @@ public class ELANCommandFactory {
      */
     public static final String SWEDISH = "Svenska";
     /**
+     * constant for language lituanian
+     */
+    public static final String LITHUANIAN = "Lietuvi\u0161kai";
+    /**
      * constant for language german
      */
     public static final String GERMAN = "Deutsch";
@@ -1661,6 +1665,7 @@ public class ELANCommandFactory {
         languages.put(FRENCH, ElanLocale.FRENCH);
         languages.put(JAPANESE, ElanLocale.JAPANESE);
         languages.put(KOREAN, ElanLocale.KOREAN);
+        languages.put(LITHUANIAN, ElanLocale.LITHUANIAN);
         languages.put(CUSTOM_LANG, ElanLocale.CUSTOM);
     }
 
