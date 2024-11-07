@@ -384,6 +384,32 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- [[[[ Added by MG to create executable jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                            <manifest>
+                                <mainClass>
+                                mpi.eudico.client.annotator.ELAN
+                                </mainClass>
+                            </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--  Added by MG to create executable jar ]]]] -->
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.2.1</version>
