@@ -97,6 +97,8 @@ public class ImUtil {
 	public static final Locale IPA_EXT_VK = new Locale("ipa-ext", "", "IPA Extended");
 	/** a locale for English */
 	public static final Locale ENGLISH = new Locale("en", "", "ASCII");	
+	/** a locale for Lithuanian */
+	public static final Locale LITHUANIAN = new Locale("lt", "", "Standard");
 	
 	/**
 	 * Private constructor.
@@ -148,7 +150,8 @@ public class ImUtil {
 			ImUtil.IPA_EXT_VK,
 			ImUtil.KOREAN,
 			ImUtil.Cyrillic,
-			ImUtil.TURKISH
+			ImUtil.TURKISH,
+			ImUtil.LITHUANIAN
 			};
 
 	}

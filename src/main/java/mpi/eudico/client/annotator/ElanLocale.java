@@ -42,6 +42,9 @@ public class ElanLocale {
 	/** constant for Swedish */
 	public static final Locale SWEDISH = Locale.of("sv", "SE");
 
+	/** constant for Lithunian */
+	public static final Locale LITHUANIAN = Locale.of("lt", "LT");
+
 	/** constant for German */
 	public static final Locale GERMAN = Locale.of("de", "DE");
 
