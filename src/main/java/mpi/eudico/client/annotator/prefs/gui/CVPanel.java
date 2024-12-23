@@ -6,10 +6,12 @@ import java.awt.GridBagLayout;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -36,10 +38,15 @@ public class CVPanel extends AbstractEditPrefsPanel implements PreferenceEditor,
     
     private JCheckBox showDescriptionCB;
     
+    private JCheckBox suggestCVByParentCB;
+    
     private JTextField inlineWidthTF;
     private JTextField cvWidthPercentageTF;
     
     private JCheckBox annotationValuePrecedenceCB;
+    
+    private JRadioButton suggestAnyWordsRB;
+    private JRadioButton suggestExactSequenceOfWordsRB;
     
     private int oriInlineBoxWidth = 0;
     private int oriCVWidthPercentage = 30;
@@ -47,6 +54,9 @@ public class CVPanel extends AbstractEditPrefsPanel implements PreferenceEditor,
     private boolean oriSuggestSearchMethodFlag = false;
     private boolean oriSuggestSearchInDescFlag = false;
     private boolean oriSuggestIgnoreCaseFlag = false;
+    
+    private boolean oriSuggestByParentFlag = false;
+    private boolean oriSuggestAnyWordsFlag = true;
     
     private boolean oriShowDescriptionFlag = true;
     private boolean oriAnnotationValuePrecedenceFlag = false;
@@ -107,6 +117,16 @@ public class CVPanel extends AbstractEditPrefsPanel implements PreferenceEditor,
         boolPref = Preferences.getBool("AnnotationValuePrecedenceOverCVERef", null);
         if (boolPref != null) {
         	oriAnnotationValuePrecedenceFlag = boolPref.booleanValue();
+        }
+        
+        boolPref = Preferences.getBool("ControlledVocabulary.SuggestByParent", null);
+        if(boolPref != null) {
+        	oriSuggestByParentFlag = boolPref.booleanValue();
+        }
+        
+        boolPref = Preferences.getBool("ControlledVocabulary.SuggestByAnyWords", null);
+        if(boolPref != null) {
+        	oriSuggestAnyWordsFlag = boolPref.booleanValue();
         }
        
     }  
@@ -177,6 +197,26 @@ public class CVPanel extends AbstractEditPrefsPanel implements PreferenceEditor,
         inlineEditPanel.add(cvWidthPercentageTF, gbc);
         cvWidthPercentageTF.setEnabled(showDescriptionCB.isSelected());
         
+        suggestCVByParentCB = new JCheckBox(ElanLocale.getString(
+        		"PreferencesDialog.CV.SuggestCVByParentAnnotation"), oriSuggestByParentFlag);
+        
+        ButtonGroup bGroup = new ButtonGroup();
+        suggestAnyWordsRB = new JRadioButton(ElanLocale.getString("PreferencesDialog.CV.SuggestCVByAnyWords"));
+        suggestAnyWordsRB.setSelected(oriSuggestAnyWordsFlag);
+    
+        suggestExactSequenceOfWordsRB = new JRadioButton(ElanLocale.getString("PreferencesDialog.CV.SuggestByExactSequenceOfWords"));
+        suggestExactSequenceOfWordsRB.setSelected(!oriSuggestAnyWordsFlag);
+        
+        suggestCVByParentCB.addChangeListener(this);
+        suggestAnyWordsRB.addChangeListener(this);
+        suggestExactSequenceOfWordsRB.addChangeListener(this);
+        
+        suggestAnyWordsRB.setEnabled(suggestCVByParentCB.isSelected());
+        suggestExactSequenceOfWordsRB.setEnabled(suggestCVByParentCB.isSelected());
+      
+        bGroup.add(suggestAnyWordsRB);
+        bGroup.add(suggestExactSequenceOfWordsRB);
+        
         //editing options panel	    
         int gy = 0;
         
@@ -216,6 +256,23 @@ public class CVPanel extends AbstractEditPrefsPanel implements PreferenceEditor,
         gbc.insets = globalInset;
         outerPanel.add(annotationValuePrecedenceCB, gbc);
         
+        gbc.gridy = gy++;  
+        gbc.insets = catInset; 
+        gbc.fill = GridBagConstraints.HORIZONTAL;   
+        outerPanel.add(new JLabel(ElanLocale.getString("PreferencesDialog.CV.SuggestByParent")), gbc);
+        
+        gbc.gridy = gy++;
+        gbc.insets = globalInset;
+        outerPanel.add(suggestCVByParentCB, gbc);
+        
+        gbc.gridy = gy++;
+        gbc.insets = singleTabInset;
+        outerPanel.add(suggestAnyWordsRB, gbc);
+        
+        gbc.gridy = gy++;
+        gbc.insets = singleTabInset;
+        outerPanel.add(suggestExactSequenceOfWordsRB, gbc);
+        
         gbc.gridy = gy++; 
         gbc.weighty = 1.0;
         gbc.weightx = 1.0;
@@ -250,6 +307,14 @@ public class CVPanel extends AbstractEditPrefsPanel implements PreferenceEditor,
             	chMap.put("InlineEditBox.ShowCVDescription", 
             		Boolean.valueOf(showDescriptionCB.isSelected()));
             }
+            if(suggestCVByParentCB.isSelected() != oriSuggestByParentFlag) {
+            	chMap.put("ControlledVocabulary.SuggestByParent", 
+            			Boolean.valueOf(suggestCVByParentCB.isSelected()));
+            }
+            if(suggestAnyWordsRB.isSelected() != oriSuggestAnyWordsFlag) {
+            	chMap.put("ControlledVocabulary.SuggestByAnyWords", 
+            			Boolean.valueOf(suggestAnyWordsRB.isSelected()));
+            }
             
             chMap.put("InlineEditBoxWidth", newInlineBoxWidth);
             chMap.put("InlineEditBoxCvWidthPercentage", newCVWidthPercentage);
@@ -277,7 +342,9 @@ public class CVPanel extends AbstractEditPrefsPanel implements PreferenceEditor,
                 showDescriptionCB.isSelected() != oriShowDescriptionFlag ||
                 newInlineBoxWidth != oriInlineBoxWidth ||
                 newCVWidthPercentage != oriCVWidthPercentage ||
-                annotationValuePrecedenceCB.isSelected() != oriAnnotationValuePrecedenceFlag
+                annotationValuePrecedenceCB.isSelected() != oriAnnotationValuePrecedenceFlag ||
+                suggestCVByParentCB.isSelected() != oriSuggestByParentFlag ||
+                suggestAnyWordsRB.isSelected() != oriSuggestAnyWordsFlag
                 ) {
             return true;
         }
@@ -340,6 +407,10 @@ public class CVPanel extends AbstractEditPrefsPanel implements PreferenceEditor,
 			if(showDescriptionCB.isSelected()){
 				cvWidthPercentageTF.requestFocus();
 			}		
+		}
+		if(e.getSource() == suggestCVByParentCB) {
+			suggestAnyWordsRB.setEnabled(suggestCVByParentCB.isSelected());
+			suggestExactSequenceOfWordsRB.setEnabled(suggestCVByParentCB.isSelected());
 		}
 	}
 }

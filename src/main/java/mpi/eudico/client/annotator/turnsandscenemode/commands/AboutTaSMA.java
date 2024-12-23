@@ -68,9 +68,9 @@ public class AboutTaSMA extends FrameMenuAction {
         textBuf.append("Version: ");
         textBuf.append(SIMPLELAN.getVersionString());
         textBuf.append("<br><br>");
-        textBuf.append("Copyright \u00A9 2021");
+        textBuf.append("Copyright \u00A9 2024");
         textBuf.append("<br>");
-        textBuf.append("Max-Planck-Institute for Psycholinguistics");
+        textBuf.append("Max Planck Institute for Psycholinguistics");
         textBuf.append("<br>");
         textBuf.append("Nijmegen, The Netherlands");
         textBuf.append("<br><br>");

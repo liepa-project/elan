@@ -9,10 +9,10 @@ public class DirectoryPathTestDataProvider {
     public static Stream<Arguments> provideParamsForGetDirPath() {
 
         return Stream.of(
-            Arguments.of("/whisper/testExecMac.jar", "Mac", "/whisper/testExecMac.jar"),
-            Arguments.of("/whisper/testExecWin.exe", "Windows 11", "/whisper/testExecWin.exe"),
-            Arguments.of("/whisper/testExecWin", "Windows 11", "/whisper/testExecWin.exe"),
-            Arguments.of("/whisper/testExecUbuntu", "Linux", "/whisper/testExecUbuntu")
+            Arguments.of("/whisper/", "testExecMac.jar", "Mac", "/whisper/testExecMac.jar"),
+            Arguments.of("/whisper/", "testExecWin.exe", "Windows 11", "/whisper/testExecWin.exe"),
+            Arguments.of("/whisper/", "testExecWin", "Windows 11", "/whisper/testExecWin.exe"),
+            Arguments.of("/whisper/", "testExecUbuntu", "Linux", "/whisper/testExecUbuntu")
         );
     }
 

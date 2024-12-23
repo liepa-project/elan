@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import mpi.eudico.client.annotator.Constants;
 import mpi.eudico.client.annotator.interlinear.IGTTierType;
 import mpi.eudico.client.annotator.interlinear.edit.model.IGTAnnotation;
 import mpi.eudico.client.annotator.interlinear.edit.model.IGTDataModel;
@@ -258,7 +257,7 @@ public class IGTGroupRenderer {
 			g.fillRect(x, y, w, h);
 		}
 		if (isSelected) {
-			g.setColor(Constants.ACTIVEANNOTATIONCOLOR);
+			g.setColor(IGTConstants.ACTIVE_ANNO_BORDER_COLOR);
 			g.drawRect(x, y, w - 1, h -1);
 		} else if (vrInfo.showAnnoBorders) {
 			g.setColor(vrInfo.annoBorderColor);

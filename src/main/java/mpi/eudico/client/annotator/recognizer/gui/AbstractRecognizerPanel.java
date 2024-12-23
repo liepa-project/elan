@@ -9,7 +9,6 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -580,12 +579,15 @@ RecognizerHost, ElanLocaleListener, ItemListener, ACMEditListener {
 		updateSupportedFiles();	
 		
 		int mode = currentRecognizer.getRecognizerType();
-		currentRecognizer.setMedia(supportedMediaFiles.get(mode));		
+		currentRecognizer.setMedia(getFileListForRecognizerType(mode));		
 		
 		controlPanel = currentRecognizer.getControlPanel();
 		if(controlPanel == null){			
 			// check if there are parameters, create factory panel	
 			controlPanel = getParamPanel(currentRecognizer);
+			if(controlPanel instanceof ParamPanelContainer){
+				((ParamPanelContainer)controlPanel).updateMediaFiles(getFileListForRecognizerType(mode));
+			}
 		}		
 		
 		if(controlPanel != null){
@@ -690,7 +692,7 @@ RecognizerHost, ElanLocaleListener, ItemListener, ACMEditListener {
 		updateSupportedFiles();		
 
 		int mode = currentRecognizer.getRecognizerType();
-		List<String> smf = supportedMediaFiles.get(mode);
+		List<String> smf = getFileListForRecognizerType(mode);
 		
 		if(controlPanel instanceof ParamPanelContainer){
 			((ParamPanelContainer)controlPanel).updateMediaFiles(smf);
@@ -711,6 +713,30 @@ RecognizerHost, ElanLocaleListener, ItemListener, ACMEditListener {
 
 		// update files list for the java plugin recognizers
 		currentRecognizer.setMedia(smf);
+	}
+	
+	private List<String> getFileListForRecognizerType(int mode) {
+		switch(mode) {
+		case Recognizer.VIDEO_TYPE:
+			return supportedMediaFiles.get(mode);
+		case Recognizer.OTHER_TYPE:
+			return supportedMediaFiles.get(mode);
+		case Recognizer.AUDIO_TYPE:
+			// merge the audio and video list and let the recognizer's file 
+			// parameter's mime-types determine which ones to list
+			List<String> avFiles = supportedMediaFiles.get(mode);
+			if (!supportedMediaFiles.get(Recognizer.VIDEO_TYPE).isEmpty()) {
+				avFiles = new ArrayList<>(avFiles);
+				for (String videoFile : supportedMediaFiles.get(Recognizer.VIDEO_TYPE)) {
+					if (!avFiles.contains(videoFile)) {
+						avFiles.add(videoFile);
+					}
+				}
+			}
+			return avFiles;
+		default:
+			return List.of();
+		}
 	}
 	
 	/**

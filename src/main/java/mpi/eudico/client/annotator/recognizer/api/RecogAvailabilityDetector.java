@@ -84,6 +84,7 @@ public class RecogAvailabilityDetector {
 					Recognizer rec = (Recognizer) Class.forName(bundle.getRecognizerClass(), true, recognizerLoader)
 							.getDeclaredConstructor().newInstance();
 					rec.setName(bundle.getName());
+					rec.setBaseDir(bundle.getBaseDir());
 					map.put(key, rec);
 				} catch (ClassNotFoundException cnfe) {
 					LOG.severe("Cannot load the recognizer class: " + bundle.getRecognizerClass() + " - Class not found");

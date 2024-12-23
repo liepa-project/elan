@@ -44,8 +44,8 @@ public class LocaleDiff {
      */
     public void run() {
         ResourceBundle english = ResourceBundle.getBundle(
-                //"mpi.search.resources.SearchLanguage", new Locale("", "", ""));
-    			"mpi.eudico.client.annotator.resources.ElanLanguage", new Locale("", "", ""));
+                //"mpi.search.resources.SearchLanguage", Locale.of("", "", ""));
+    			"mpi.eudico.client.annotator.resources.ElanLanguage", Locale.of("", "", ""));
         
         PropertyResourceBundle other = null;
         Collection<Locale> allLocs = ELANCommandFactory.getLocales();

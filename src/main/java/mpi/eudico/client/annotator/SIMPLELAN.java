@@ -16,7 +16,7 @@ public class SIMPLELAN {
     public static final int major = 1;
 
     /** the minor/bug-fix version value */
-    public static final int minor = 4;
+    public static final int minor = 5;
     
     /** the application name */
     public static final String appName = "Simple-ELAN";

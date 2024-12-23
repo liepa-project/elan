@@ -33,10 +33,12 @@ import javax.swing.tree.TreeSelectionModel;
 
 import mpi.eudico.client.annotator.ElanLocale;
 import mpi.eudico.client.annotator.ElanLocaleListener;
+import mpi.eudico.client.annotator.Preferences;
 import mpi.eudico.client.annotator.commands.Command;
 import mpi.eudico.client.annotator.commands.ELANCommandFactory;
 import mpi.eudico.client.annotator.lexicon.LexiconClientFactoryLoader;
 import mpi.eudico.client.annotator.lexicon.LexiconLoginDialog;
+import mpi.eudico.client.annotator.lexicon.LexiconResultFieldsDialog;
 import mpi.eudico.client.annotator.lexicon.ValueChooseDialog;
 import static mpi.eudico.client.annotator.util.ClientLogger.LOG;
 import mpi.eudico.client.mediacontrol.ControllerEvent;
@@ -91,6 +93,7 @@ public class LexiconEntryViewer extends AbstractViewer implements
 	private Lexicon searchResultLexicon;
 	private JButton changeAnnotationButton;
 	private JButton changeAnnotationsButton;
+	private JButton filterResultFieldsButton;
 	private LexiconEntry activeLexiconEntry;
 	private Annotation activeAnnotation;
 	private ArrayList<String> selectedEntryValues;
@@ -204,6 +207,19 @@ public class LexiconEntryViewer extends AbstractViewer implements
 		changeAnnotationsButton.addActionListener(this);
 		searchPanel.add(changeAnnotationsButton, gbc);
 		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.LINE_START;
+		gbc.insets = new Insets(5,5,0,0);
+		gbc.gridx = 0;
+		gbc.gridy = 6;
+		gbc.gridwidth = 2;
+		
+		filterResultFieldsButton = new JButton();
+		filterResultFieldsButton.setEnabled(false);
+		filterResultFieldsButton.addActionListener(this);
+		searchPanel.add(filterResultFieldsButton, gbc);
+		
+		
 		JPanel resultsPanel = new JPanel();
 		resultsPanel.setLayout(new GridBagLayout());
 		
@@ -274,6 +290,8 @@ public class LexiconEntryViewer extends AbstractViewer implements
 			changeAnnotation();
 		} else if (e.getSource() == changeAnnotationsButton) {
 			changeAnnotationAndDependents();
+		} else if (e.getSource() == filterResultFieldsButton) {
+			filterResultFields();
 		}
 	}
 
@@ -313,6 +331,7 @@ public class LexiconEntryViewer extends AbstractViewer implements
 					
 					// Expand the first entry
 					if(lexiconResponseTree.getModel().getChildCount(searchResultLexicon) > 0) {
+						filterEntryResultFields();
 						Object[] pathElements = {searchResultLexicon, searchResultLexicon.getEntry(0)};
 						TreePath path = new TreePath(pathElements);
 						lexiconResponseTree.expandPath(path);
@@ -351,6 +370,32 @@ public class LexiconEntryViewer extends AbstractViewer implements
 				message.setText("");
 			}
 			lexiconResponseTree.addTreeSelectionListener(this);
+		}
+	}
+	
+	private void filterEntryResultFields() {
+
+		List<String> stringsPref = Preferences.getListOfString(
+				"LexiconResultFields.SelectedFields." + currentLexiconQueryBundle.getLink().getLexId(), null);
+		List<EntryElement> toBeRemoved = new ArrayList<>();
+
+		if (currentClient != null) {
+			if (stringsPref != null && !stringsPref.isEmpty()) {
+
+				for (int i = 0; i < lexiconResponseTree.getModel().getChildCount(searchResultLexicon); i++) {
+					LexiconEntry entry = searchResultLexicon.getEntry(i);
+					if (entry != null) {
+						for (EntryElement e : entry.getElements()) {
+							if (!stringsPref.contains(e.getName())) {
+								toBeRemoved.add(e);
+							}
+						}
+						for (EntryElement e : toBeRemoved) {
+							entry.removeElement(e);
+						}
+					}
+				}
+			}
 		}
 	}
 
@@ -444,6 +489,12 @@ public class LexiconEntryViewer extends AbstractViewer implements
     	c.execute(activeAnnotation, oargs);
 	}
 	
+	private void filterResultFields() {
+		Object parent = this.getRootPane().getParent();
+		LexiconResultFieldsDialog dialog = new LexiconResultFieldsDialog((Frame) parent, currentLexiconQueryBundle.getLink());
+		dialog.setVisible(true);
+	}
+	
 	private String findField(EntryElement entry, String fieldname) {
 		if (entry.isField()) {
 			if (fieldname.equals(entry.getName())) {
@@ -497,6 +548,8 @@ public class LexiconEntryViewer extends AbstractViewer implements
 		changeAnnotationButton.setToolTipText(ElanLocale.getString("LexiconEntryViewer.ChangeAnnotationToolTip"));
 		changeAnnotationsButton.setText(ElanLocale.getString("LexiconEntryViewer.ChangeAnnotations"));
 		changeAnnotationsButton.setToolTipText(ElanLocale.getString("LexiconEntryViewer.ChangeAnnotationsToolTip"));
+		filterResultFieldsButton.setText(ElanLocale.getString("LexiconEntryViewer.FilterResultFields"));
+		filterResultFieldsButton.setToolTipText(ElanLocale.getString("LexiconEntryViewer.FilterResultFieldsToolTip"));
 	}
 
 	@Override
@@ -518,6 +571,7 @@ public class LexiconEntryViewer extends AbstractViewer implements
 		tierOfActiveAnnotationValue.setText("");
 		constraintsComboBox.removeAllItems();
 		getLexiconEntryButton.setEnabled(false);
+		filterResultFieldsButton.setEnabled(false);
 		
 		activeAnnotation = getActiveAnnotation();
 		if(activeAnnotation != null) {
@@ -546,6 +600,7 @@ public class LexiconEntryViewer extends AbstractViewer implements
 				currentClient = currentLexiconQueryBundle.getLink().getSrvcClient();
 				if (currentClient != null) {
 					getLexiconEntryButton.setEnabled(true);
+					filterResultFieldsButton.setEnabled(true);
 
 					ArrayList<String> constraints = currentClient.getSearchConstraints();
 					for (int i = 0; i < constraints.size(); i++) {
@@ -559,12 +614,22 @@ public class LexiconEntryViewer extends AbstractViewer implements
 
 	private String getDefaultCVEntryValue() {
 		String cvName = activeAnnotation.getTier().getLinguisticType().getControlledVocabularyName();
+		int langIndex = -1;
 		if(cvName != null) {
 			String entryId = activeAnnotation.getCVEntryId();
 			ControlledVocabulary cv = activeAnnotation.getTier().getTranscription().getControlledVocabulary(cvName);
 			CVEntry entry = cv.getEntrybyId(entryId);
+			TierImpl tier = (TierImpl) activeAnnotation.getTier();
+            Pair<ControlledVocabulary, Integer> pair = tier.getEffectiveLanguage();
+            if (pair != null) {
+                langIndex = pair.getSecond();
+            }
 			if(entry != null) {
-				return entry.getValue(0);
+				if(langIndex > 0) {
+					return entry.getValue(langIndex);
+				} else {
+					return entry.getValue(0);
+				}
 			} else if (entryId != null) {
 				// report the condition where there is an entry ID but no matching Entry was found
 				if (LOG.isLoggable(Level.WARNING)) {

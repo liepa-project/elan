@@ -19,8 +19,6 @@ import mpi.eudico.client.util.CheckBoxTableCellRenderer;
  */
 @SuppressWarnings("serial")
 public class TierExportTable extends JTable {
-	/** the table model */
-	protected DefaultTableModel model;
 	int selectionMode;
 
 	/**
@@ -68,7 +66,6 @@ public class TierExportTable extends JTable {
 	 */
 	public TierExportTable(DefaultTableModel model, int selectionMode) {
 		super(model);
-		this.model = model;
 		init(selectionMode, false);
 	}
 	
@@ -85,7 +82,6 @@ public class TierExportTable extends JTable {
 	public TierExportTable(DefaultTableModel model, int selectionMode,
 			boolean showTableHeader) {
 		super(model);
-		this.model = model;
 		init(selectionMode, showTableHeader);
 	}
 	
@@ -97,8 +93,10 @@ public class TierExportTable extends JTable {
 	 * @param showTableHeader whether a table header should be shown
 	 */
 	public void init(int selectionMode, boolean showTableHeader) {
-		if (model.getColumnCount() < 2) {
-			model.setColumnCount(2);
+		if (getModel().getColumnCount() < 2) {
+			if (getModel() instanceof DefaultTableModel model) {
+				model.setColumnCount(2);
+			}
 		}
 
         DefaultCellEditor cellEd = new DefaultCellEditor(new JCheckBox());
@@ -177,16 +175,16 @@ public class TierExportTable extends JTable {
 	public void valueChanged(ListSelectionEvent lse) {
     	super.valueChanged(lse);
     	
-        if ((model != null) && lse.getValueIsAdjusting()) {
+        if ((getModel() != null) && lse.getValueIsAdjusting()) {
             if (selectionMode == ListSelectionModel.SINGLE_SELECTION) {
                 int i = this.getSelectedRow();
 
                 if (i > -1) {
                     for (int j = 0; j < this.getRowCount(); j++) {
                         if (j == i) {
-                        	model.setValueAt(Boolean.TRUE, j, TierExportTableModel.CHECK_COL);
+                        	getModel().setValueAt(Boolean.TRUE, j, TierExportTableModel.CHECK_COL);
                         } else {
-                        	model.setValueAt(Boolean.FALSE, j, TierExportTableModel.CHECK_COL);
+                        	getModel().setValueAt(Boolean.FALSE, j, TierExportTableModel.CHECK_COL);
                         }
                     }
                     this.revalidate();
@@ -201,7 +199,7 @@ public class TierExportTable extends JTable {
 
                 for (int i = b; i <= e; i++) {
                     if (this.isRowSelected(i)) {
-                        model.setValueAt(Boolean.TRUE, i, TierExportTableModel.CHECK_COL);
+                    	getModel().setValueAt(Boolean.TRUE, i, TierExportTableModel.CHECK_COL);
                     }
                 }
             }
@@ -221,10 +219,10 @@ public class TierExportTable extends JTable {
             int i = this.getSelectedRow();
 
             if (i >= 0) {
-                final int rowCount = model.getRowCount();
+                final int rowCount = getModel().getRowCount();
 				for (int j = 0; j < rowCount; j++) {
                     if (j != i) {
-                    	model.setValueAt(Boolean.FALSE, j, TierExportTableModel.CHECK_COL);
+                    	getModel().setValueAt(Boolean.FALSE, j, TierExportTableModel.CHECK_COL);
                     }
                 }
             }

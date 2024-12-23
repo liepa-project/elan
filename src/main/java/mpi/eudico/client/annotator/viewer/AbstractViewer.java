@@ -339,45 +339,26 @@ public abstract class AbstractViewer extends JComponent
         	selection.setSelection(begin, end);
         	return;
         }
-        
-        TierImpl constrainingTier = null;
 
-        if (getActiveAnnotation() != null) {
-            constrainingTier = (TierImpl)getActiveAnnotation().getTier();
-        } else {
-        	if(getViewerManager().getMultiTierControlPanel() != null){
-        		constrainingTier =
-            		(TierImpl)
-            		getViewerManager().getMultiTierControlPanel()
-                                      .getActiveTier();
-        	}
-        }
+    	if (getViewerManager().getMultiTierControlPanel() != null) {
+    		TierImpl constrainingTier = (TierImpl) getViewerManager()
+        		.getMultiTierControlPanel().getActiveTier();
+    	
+	        if (constrainingTier != null) {
+	            if (constrainingTier.getLinguisticType()
+	                     .hasConstraints()) {
+	                Constraint c = constrainingTier.getLinguisticType()
+	                                .getConstraints();
+	                long[] segment = { begin, end };
+					
+					c.forceTimes(segment, constrainingTier.getParentTier());
 
-        if (constrainingTier != null) {
-            if (constrainingTier.getLinguisticType()
-                     .hasConstraints()) {
-                Constraint c = constrainingTier.getLinguisticType()
-                                .getConstraints();
-                long[] segment = { begin, end };
-				
-				TierImpl parent = constrainingTier.getParentTier();
-				if (getActiveAnnotation() == null || 
-					! (getActiveAnnotation() instanceof AlignableAnnotation)) {					                
-	                c.forceTimes(segment, parent);	
-				} else {
-					Annotation pa = getActiveAnnotation().getParentAnnotation();
-					if (pa != null && pa instanceof AlignableAnnotation) {
-						segment[0] = begin < pa.getBeginTimeBoundary() ? pa.getBeginTimeBoundary() : begin;
-						segment[1] = end > pa.getEndTimeBoundary() ? pa.getEndTimeBoundary() : end;
-					} else {
-						c.forceTimes(segment, parent);
-					}
-				}
-				begin = segment[0];
-				end = segment[1];
-            }
-        }
-
+					begin = segment[0];
+					end = segment[1];
+	            }
+	        }
+    	}
+    	
         selection.setSelection(begin, end);
     }
     

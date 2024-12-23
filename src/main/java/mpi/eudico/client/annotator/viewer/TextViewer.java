@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -107,6 +108,7 @@ public class TextViewer extends AbstractViewer implements SingleTierViewer,
     private final Color transparent;
     private boolean enterCommits = true;
     private static final String DOTS = "\u0020\u0020\u00B7\u0020\u0020";
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\b", Pattern.UNICODE_CHARACTER_CLASS);
     
     /** The language reference (ISO 639-2) for the current tier */
 	private String tierLanguageRef;
@@ -764,7 +766,7 @@ public class TextViewer extends AbstractViewer implements SingleTierViewer,
     }
     
     private void updateAnnotations() {
-    	System.out.println("Text updateAnnotations: " + Thread.currentThread().getName());
+    	//System.out.println("Text updateAnnotations: " + Thread.currentThread().getName());
     	annotations = this.tier.getAnnotations();
         for (Object obj : valueHighLightInfos) {
         	highlighter.removeHighlight(obj);
@@ -852,8 +854,9 @@ public class TextViewer extends AbstractViewer implements SingleTierViewer,
 	            	List<Pair<String, List<String>>> suggestions = checker.getSuggestions(ann.getValue());
 
 	            	if(SpellCheckerUtil.hasSuggestions(suggestions)) { // Is there any mistake?
-		            	String[] annElements = annValue.split("\\b"); // Split on word boundary to include spaces
-		            	
+		            	//String[] annElements = annValue.split("\\b"); // Split on word boundary to include spaces
+	            		String[] annElements = WORD_PATTERN.split(annValue); // Split on word boundary or all unicode classes
+	            		
 		        		// Get the corresponding tag begin
 		    			long annotationBeginTime = ann.getBeginTimeBoundary();
 		    			int indexAnnBegin = Math.abs(Arrays.binarySearch(arrTagTimes,

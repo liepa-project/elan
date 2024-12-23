@@ -125,7 +125,7 @@ public class CMDIServiceProvider implements MDServiceProvider {
         	try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
         		for (int i = 0; i < 10; i++) {
         			String line = reader.readLine();
-        			if (line.indexOf("<oai_dc:dc") >= 0 || line.indexOf("<dc:") >= 0) {
+        			if (line != null && line.indexOf("<oai_dc:dc") >= 0 || line.indexOf("<dc:") >= 0) {
         	        	sourcePath = filePath;
         	        	// set rootTreeNode to null so that a tree will be created when necessary
         	        	rootTreeNode = null;

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.File;
 import java.net.URISyntaxException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,7 +16,7 @@ class DirectoryPathTest {
 
     @ParameterizedTest
     @MethodSource("nl.mpi.recognizer.local.whisper.transcriber.DirectoryPathTestDataProvider#provideParamsForGetDirPath")
-    void testGetDirPath(String str, String os, String result) {
+    void testGetDirPath(String baseDir, String str, String os, String result) {
 
         DirectoryPath directoryPath = new DirectoryPath() {
             @Override
@@ -24,7 +25,7 @@ class DirectoryPathTest {
             }
         };
 
-        assertEquals(result, directoryPath.getDirPath(str));
+        assertEquals(result, directoryPath.getDirPath(str, new File(baseDir)));
     }
 
     @ParameterizedTest

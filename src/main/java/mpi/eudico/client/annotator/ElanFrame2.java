@@ -2046,6 +2046,11 @@ public class ElanFrame2 extends JFrame implements ActionListener,
         languageBG.add(langRBMI);
         menuAppLanguage.add(langRBMI);
         
+        ma = new SetLocaleMA(ELANCommandFactory.INDONESIAN, this, ElanLocale.INDONESIAN);
+        langRBMI = new JRadioButtonMenuItem(ma);
+        languageBG.add(langRBMI);
+        menuAppLanguage.add(langRBMI);
+        
         ma = new SetLocaleMA(ELANCommandFactory.JAPANESE, this, ElanLocale.JAPANESE);
         langRBMI = new JRadioButtonMenuItem(ma);
         languageBG.add(langRBMI);

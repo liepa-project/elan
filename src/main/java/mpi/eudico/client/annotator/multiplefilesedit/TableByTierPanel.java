@@ -129,7 +129,7 @@ public class TableByTierPanel extends JPanel implements ActionListener {
 			if(e.getActionCommand().equals("addRow")) {
 				int new_row = ((TableByTierModel)table.getModel()).newRow();
 				table.newRow(new_row);
-				table.showCell(table.getRowCount()-1, 0);
+				table.showCell(table.convertRowIndexToView(table.getRowCount()-1), 0);
 			}else if(e.getActionCommand().equals("addDependentTier")) {
 				String[] parentTiers = model.getConsistentTierNames();
 				if(parentTiers != null){
@@ -140,17 +140,16 @@ public class TableByTierPanel extends JPanel implements ActionListener {
 					if(parentName != null && stereotype > -1){
 						int new_row = ((TableByTierModel)table.getModel()).newRowForChildTier(parentName, stereotype);
 						table.newRow(new_row);
-						table.showCell(table.getRowCount()-1, 0);
+						table.showCell(table.convertRowIndexToView(table.getRowCount()-1), 0);
 					}
 				}
 			} else if (e.getActionCommand().equals("removeRow")) {
 				int[] selectedRows=table.getSelectedRows();
-//				int[] convertedSelectedRows=new int[selectedRows.length];
-//				for(int i=0;i<selectedRows.length;i++) {
-//					convertedSelectedRows[i]=table.convertRowIndexToModel(selectedRows[i]);
-//				}
-//				((TableByTierModel)table.getModel()).removeRows(convertedSelectedRows);
-				((TableByTierModel)table.getModel()).removeRows(selectedRows);
+				int[] convertedSelectedRows=new int[selectedRows.length];
+				for(int i=0;i<selectedRows.length;i++) {
+					convertedSelectedRows[i]=table.convertRowIndexToModel(selectedRows[i]);
+				}
+				((TableByTierModel)table.getModel()).removeRows(convertedSelectedRows);
 			}
 		}
 	}

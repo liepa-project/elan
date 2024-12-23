@@ -43,8 +43,10 @@ public class TierExportTable5Columns extends TierExportTable {
 
     @Override
     public void init(int selectionMode, boolean showTableHeader) {
-        if (model.getColumnCount() < 2) {
-            model.setColumnCount(2);
+        if (getModel().getColumnCount() < 2) {
+			if (getModel() instanceof DefaultTableModel model) {
+				model.setColumnCount(2);
+			}
         }
 
         DefaultCellEditor cellEd = new DefaultCellEditor(new JCheckBox());
@@ -59,7 +61,7 @@ public class TierExportTable5Columns extends TierExportTable {
             this.setTableHeader(null);
         }
 
-        if (model.getColumnCount() == 5) {
+        if (getModel().getColumnCount() == 5) {
             DefaultCellEditor cellEd2 = new DefaultCellEditor(new JCheckBox());
             final TableColumn column2 = this.getColumnModel().getColumn(TierExportTableModel5Columns.COL2);
             column2.setCellEditor(cellEd2);

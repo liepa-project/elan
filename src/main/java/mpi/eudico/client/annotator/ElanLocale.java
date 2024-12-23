@@ -25,46 +25,49 @@ public class ElanLocale {
 	private static Map<Object, List<ElanLocaleListener>> listenerGroups = new HashMap<Object, List<ElanLocaleListener>>();
 
 	/** constant for a custom language */
-	public static final Locale CUSTOM = new Locale("cu", "", "");
+	public static final Locale CUSTOM = Locale.of("cu", "", "");
 
 	/** constant for Dutch */
-	public static final Locale DUTCH = new Locale("nl", "NL");
+	public static final Locale DUTCH = Locale.of("nl", "NL");
 
 	/** constant for English, the default language */
-	public static final Locale ENGLISH = new Locale("", "");
+	public static final Locale ENGLISH = Locale.of("", "");
 
 	/** constant for Catalan */
-	public static final Locale CATALAN = new Locale("ca");
+	public static final Locale CATALAN = Locale.of("ca");
 
 	/** constant for Spanish */
-	public static final Locale SPANISH = new Locale("es", "ES");
+	public static final Locale SPANISH = Locale.of("es", "ES");
 
 	/** constant for Swedish */
-	public static final Locale SWEDISH = new Locale("sv", "SE");
+	public static final Locale SWEDISH = Locale.of("sv", "SE");
 
 	/** constant for German */
-	public static final Locale GERMAN = new Locale("de", "DE");
+	public static final Locale GERMAN = Locale.of("de", "DE");
 
 	/** constant for Portuguese */
-	public static final Locale PORTUGUESE = new Locale("pt");
+	public static final Locale PORTUGUESE = Locale.of("pt");
 
 	/** constant for Brazilian Portuguese */
-	public static final Locale BRAZILIAN_PORTUGUESE = new Locale("pt", "BR");
+	public static final Locale BRAZILIAN_PORTUGUESE = Locale.of("pt", "BR");
 
 	/** constant for French */
-	public static final Locale FRENCH = new Locale("fr");
+	public static final Locale FRENCH = Locale.of("fr");
 
 	/** constant for Japanese */
-	public static final Locale JAPANESE = new Locale("ja", "JP");
+	public static final Locale JAPANESE = Locale.of("ja", "JP");
 
 	/** constant for Chinese simplified */
-	public static final Locale CHINESE_SIMP = new Locale("zh", "CN");
+	public static final Locale CHINESE_SIMP = Locale.of("zh", "CN");
 
 	/** constant for Russian */
-	public static final Locale RUSSIAN = new Locale("ru", "RU");
+	public static final Locale RUSSIAN = Locale.of("ru", "RU");
 
 	/** constant for Korean */
-	public static final Locale KOREAN = new Locale("ko");
+	public static final Locale KOREAN = Locale.of("ko");
+	
+	/** constant for Indonesian */
+	public static final Locale INDONESIAN = Locale.of("id");
 
 	/**
 	 * Constructor

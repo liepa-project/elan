@@ -46,6 +46,15 @@ public class EntryElement {
 		elements.add(element);
 		isField = false;
 	}
+	
+	/**
+	 * Removes a child element from this entry element
+	 * @param element the element to delete
+	 */
+	public void removeElement(EntryElement element) {
+		elements.remove(element);
+		isField = false;
+	}
 
 	/**
 	 * Returns whether this entry element is a leaf element.

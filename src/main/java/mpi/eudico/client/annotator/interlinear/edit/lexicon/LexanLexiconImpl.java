@@ -17,7 +17,11 @@ import nl.mpi.lexiconcomponent.impl.EntryImpl;
 import nl.mpi.lexiconcomponent.impl.LexiconFields;
 import nl.mpi.lexiconcomponent.impl.LexiconImpl;
 import nl.mpi.lexiconcomponent.impl.SenseImpl;
+import nl.mpi.lexiconcomponent.model.CustomField;
+import nl.mpi.lexiconcomponent.model.Definition;
 import nl.mpi.lexiconcomponent.model.Entry;
+import nl.mpi.lexiconcomponent.model.Gloss;
+import nl.mpi.lexiconcomponent.model.Phonetic;
 import nl.mpi.lexiconcomponent.model.Sense;
 import nl.mpi.lexiconcomponent.query.EntryFieldGetter;
 import nl.mpi.lexiconcomponent.query.EntryFieldGetterFactory;
@@ -93,6 +97,102 @@ public class LexanLexiconImpl implements LexanLexicon, LexiconEditListener {
 					entry.getMorphType()));
 		}
 
+		return lexanEntry;
+	}
+	
+	/**
+	 * Creates a {@code LexanEntry} containing almost all known fields and 
+	 * without creation of entry field getters.
+	 * 
+	 * @param entry the source entry, not {@code null}
+	 * @return the created {@code LexanEntry}
+	 */
+	private LexanEntry toFullLexanEntry(EntryImpl entry) {
+		LexanEntry lexanEntry = toLexanEntry(entry);
+		
+		if (entry.getOrder() != null) {
+			lexanEntry.addLexItem(new LexAtom(LexiconFields.ENTRY_ORDER.getFieldName(), 
+					String.valueOf(entry.getOrder())));
+		}
+		
+		if (entry.getCitation() != null) {
+			lexanEntry.addLexItem(new LexAtom(LexiconFields.ENTRY_CITATION.getFieldName(),
+					entry.getCitation()));
+		}
+
+		if (entry.getNote() != null) {
+			for (String note : entry.getNote()) {
+				lexanEntry.addLexItem(
+						new LexAtom(LexiconFields.ENTRY_NOTE.getFieldName(), note));
+			}
+		}
+		// the lists can be empty but not null
+		for (String variant : entry.getVariant()) {
+			lexanEntry.addLexItem(
+					new LexAtom(LexiconFields.ENTRY_VARIANT.getFieldName(), variant));
+		}
+
+		for (Phonetic phon : entry.getPhonetic()) {
+			String fieldName = LexiconFields.ENTRY_PHONETIC.getFieldName() + 
+					(phon.getLang() != null ? ("/" + phon.getLang()) : "");
+			lexanEntry.addLexItem(new LexAtom(fieldName, phon.getValue()));
+		}
+
+		for (CustomField customField : entry.getField()) {
+			String fieldName = LexiconFields.ENTRY_FIELD.getFieldName() + "/" + customField.getName();
+			if (customField.getLang() != null) {
+				fieldName = fieldName + "/" + customField.getLang();
+			}
+			lexanEntry.addLexItem(new LexAtom(fieldName, customField.getValue()));
+		}
+
+		for (Sense sense : entry.getSense()) {
+			LexCont senseCont = new LexCont(LexiconFields.SENSE.getFieldName());
+			lexanEntry.addLexItem(senseCont);
+			
+			senseCont.addLexItem(new LexAtom(LexiconFields.SENSE_ID.getFieldName(), sense.getId()));
+			senseCont.addLexItem(new LexAtom(LexiconFields.SENSE_GRAM_CAT.getFieldName(), 
+					sense.getGrammaticalCategory()));
+			senseCont.addLexItem(new LexAtom(LexiconFields.SENSE_ORDER.getFieldName(), 
+					String.valueOf(sense.getOrder())));
+			
+			for (Gloss gloss : sense.getGloss()) {
+				String fieldName = LexiconFields.SENSE_GLOSS.getFieldName() + 
+						(gloss.getLang() != null ? ("/" + gloss.getLang()) : "");
+				senseCont.addLexItem(new LexAtom(fieldName, gloss.getValue()));
+				// add this twice to support both language un/aware retrieval
+				// only for glosses
+//				if (!fieldName.equals(LexiconFields.SENSE_GLOSS.getFieldName())) {
+//					senseCont.addLexItem(new LexAtom(LexiconFields.SENSE_GLOSS.getFieldName(), 
+//							gloss.getValue()));
+//				}
+			}
+			
+			for (Definition definit : sense.getDefinition()) {
+				String fieldName = LexiconFields.SENSE_DEFINITION.getFieldName() + 
+						(definit.getLang() != null ? ("/" + definit.getLang()) : "");
+				senseCont.addLexItem(new LexAtom(fieldName, definit.getValue()));
+			}
+			
+			for (String comment : sense.getComment()) {
+				senseCont.addLexItem(new LexAtom(LexiconFields.SENSE_COMMENT.getFieldName(), 
+						comment));
+			}
+			
+			for (String note : sense.getInternalNote()) {
+				senseCont.addLexItem(new LexAtom(LexiconFields.SENSE_INT_NOTE.getFieldName(), 
+						note));
+			}
+			
+			for (CustomField customField : sense.getField()) {
+				String fieldName = LexiconFields.SENSE_FIELD.getFieldName() + "/" + customField.getName();
+				if (customField.getLang() != null) {
+					fieldName = fieldName + "/" + customField.getLang();
+				}
+				senseCont.addLexItem(new LexAtom(fieldName, customField.getValue()));
+			}
+		}
+		
 		return lexanEntry;
 	}
 
@@ -236,14 +336,37 @@ public class LexanLexiconImpl implements LexanLexicon, LexiconEditListener {
 
 		return lexanEntry;
 	}
+	
+	/**
+	 * Returns a list of all matching entries, where each entry contains almost
+	 * all non-empty fields. 
+	 * 
+	 * @param queryAtom not {@code null} and the type of the query object is
+	 *        not {@code null}, if the value is {@code null} all entries will
+	 *        be returned that contain the field specified by type
+	 *        
+	 * @return a list of matched entries of LEXAN API type
+	 */
+	private List<LexEntry> getListOfMatchEntriesAllFields(LexAtom queryAtom) {
+		List<LexEntry> matchEntries = new ArrayList<LexEntry>();
+		
+		for (Entry sourceEntry : sourceLexicon.getEntries()) {
+			matchEntries.add(toFullLexanEntry((EntryImpl) sourceEntry));
+		}
+		return matchEntries;
+	}
 
 	/**
-	 *
-	 * @param queryAtom not null and the type of the query object is not null
-	 * @return a list of Lexan API entries
-     * <p>
+	 * Returns a list of matching entries with a minimal set of fields included.
+	 * <p>
      * For each result new objects may be generated.
      * If you query for the same entries multiple times, you may get different objects.
+     * 
+	 * @param queryAtom not {@code null} and the type of the query object is
+	 *        not {@code null}, if the value is {@code null} all entries will
+	 *        be returned that contain the field specified by type
+	 *        
+	 * @return a list of Lexan API entries
 	 */
 	private List<LexEntry> getListOfMatchEntries(LexAtom queryAtom) {
 		List<LexEntry> matchEntries = new ArrayList<LexEntry>();
@@ -264,12 +387,17 @@ public class LexanLexiconImpl implements LexanLexicon, LexiconEditListener {
 	}
 
 	/**
-	 *
-	 * @param queryAtom not null and the type of the query object is not null
-	 * @return a list of Lexan API entries
-     * <p>
+	 * Returns a list of matched entries including the specified set of fields.  
+	 * <p>
      * For each result new objects may be generated.
      * If you query for the same entries multiple times, you may get different objects.
+     * 
+	 * @param queryAtom not {@code null} and the type of the query object is
+	 *        not {@code null}, if the value is {@code null} all entries will
+	 *        be returned that contain the field specified by type
+	 * @param fieldsToInclude the entry fields to include in the result, some
+	 *        fields will always be part of the returned entries, not {@code null}
+	 * @return a list of Lexan API entries
 	 */
 	private List<LexEntry> getListOfMatchEntries(LexAtom queryAtom, List<String> fieldsToInclude) {
 		List<LexEntry> matchEntries = new ArrayList<LexEntry>();
@@ -305,17 +433,17 @@ public class LexanLexiconImpl implements LexanLexicon, LexiconEditListener {
 	}
 
 	/**
-	 *
-	 * @param queryItem the item to search for, contains the field name and the value search string.
-	 * If the value part of the query object is null, all entries will be returned that have that
-	 * field (and if it is not empty).
-	 *
-	 * @return a list of lexical entries that match the query value (exact match, case sensitive?).
 	 * The returned LexEntry object(s) will only contain the specified field and some default fields.
 	 * Or null if the queryItem is null.
      * <p>
      * For each result new objects may be generated.
      * If you query for the same entries multiple times, you may get different objects.
+     * 
+	 * @param queryItem the item to search for, contains the field name and the value search string.
+	 * If the value part of the query object is {@code null} all entries will be returned that have that
+	 * field (and if it is not empty).
+	 *
+	 * @return a list of lexical entries that match the query value (exact match, case sensitive?).
 	 */
 	@Override
 	public List<LexEntry> getEntries(LexAtom queryItem) {
@@ -332,17 +460,20 @@ public class LexanLexiconImpl implements LexanLexicon, LexiconEditListener {
 	}
 
 	/**
-	 *
+	 * Returns a list of matching lexical entries, each entry contains a minimal
+	 * set of fields plus the fields of the second argument.
+	 * <p>
+     * For each result new objects may be generated.
+     * If you query for the same entries multiple times, you may get different objects.
+     * 
 	 * @param queryItem the item to search for, contains the field name and the value search string.
 	 * If the value part of the query object is null, all entries will be returned that have that
 	 * field (and if it is not empty).
-	 * @param fieldsToInclude the entry fields to be included in each returned entry. If null all fields will be returned
+	 * @param fieldsToInclude the entry fields to be included in each returned entry. 
+	 *        If {@code null} all fields will be returned
 	 *
-	 * @return a list of lexical entries that match the query value (exact match, case sensitive).
-	 *  The returned list can contain LexAtom and LexCont objects.
-     * <p>
-     * For each result new objects may be generated.
-     * If you query for the same entries multiple times, you may get different objects.
+	 * @return a list of lexical entries that match the query value (exact match,
+	 *         case sensitive). The returned list can contain LexAtom and LexCont objects.
 	 */
 	@Override
 	public List<LexEntry> getEntries(LexAtom queryItem, List<String> fieldsToInclude) {
@@ -355,14 +486,23 @@ public class LexanLexiconImpl implements LexanLexicon, LexiconEditListener {
 			return null;
 		}
 
+		if (fieldsToInclude == null) {
+			return getListOfMatchEntriesAllFields(queryItem);
+		}
+		
 		return getListOfMatchEntries(queryItem, fieldsToInclude);
 	}
 
 	/**
-     * @return the (Lexan API) lexical entry or null, the entry will only contain the minimal set of fields.
-     * <p>
+	 * Returns the entry with the specified id.
+	 * <p>
      * For each result new objects may be generated.
      * If you query for the same entries multiple times, you may get different objects.
+     * 
+     * @param id the id of the entry
+     * 
+     * @return the (Lexan API) lexical entry or null, the entry will only contain
+     *         the minimal set of fields.
 	 */
 	@Override
 	public LexEntry getEntryById(String id) {
@@ -382,16 +522,20 @@ public class LexanLexiconImpl implements LexanLexicon, LexiconEditListener {
 	 * If you query for the same entries multiple times, you may get different objects.
      *
      * @param id the unique id of an entry
-     * @param includeFields the fields to include in the returned entry. If null all fields will be returned
+     * @param includeFields the fields to include in the returned entry. If {@code null}
+     *        all fields will be returned
      *
-     * @return the lexical entry or null, the entry will contain the minimal set of fields and the
-     * requested fields.
+     * @return the lexical entry or {@code null}, the entry will contain the minimal
+     *         set of fields and the requested fields.
 	 */
 	@Override
 	public LexEntry getEntryById(String id, List<String> includeFields) {
 		EntryImpl sourceEntry = sourceLexicon.getEntryWithId(id);
 
 		if (sourceEntry != null) {
+			if (includeFields == null) {
+				return toFullLexanEntry(sourceEntry);
+			}
 			return toLexanEntry(sourceEntry, includeFields, createGetters(includeFields));
 		}
 		return null;

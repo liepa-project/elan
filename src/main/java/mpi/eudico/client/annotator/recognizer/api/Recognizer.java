@@ -2,6 +2,7 @@ package mpi.eudico.client.annotator.recognizer.api;
 
 import javax.swing.JPanel;
 
+import java.io.File;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -221,5 +222,23 @@ public interface Recognizer {
 	 */
 	public default void validateParameters() throws RecognizerConfigurationException {
 
+	}
+	
+	/**
+	 * Sets the process' base directory.
+	 * 
+	 * @param baseDir the base directory for the process
+	 */
+	default void setBaseDir(File baseDir) {
+		
+	}
+
+	/**
+	 * Returns the process' base directory.
+	 * 
+	 * @return the base directory of the process
+	 */
+	default File getBaseDir() {
+		return null;
 	}
 }

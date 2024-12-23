@@ -507,7 +507,12 @@ public class WAVHeader {
                 } else if ("JUNK".equals(chunkID)) {
                 	// the chunk data size will be added to the header size, 
                 	// this content is ignored
-                } else {
+                } else if ("iXML".equals(chunkID)) {
+                    System.out.println(chunkID +
+                            " header found - information from this header is currently not used");
+                    // the XML of this header could be printed or eventually parsed to extract information
+                    // System.out.println(new String(b));
+                }else {
                     System.out.println(chunkID +
                         " header found - ignoring contents...");
                 }

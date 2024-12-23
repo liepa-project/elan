@@ -49,6 +49,7 @@ public class SuggestionComponent extends JComponent
 	private final static String htmlTTTableOpen = "<html><table>";
 	private final static String htmlTTTableClose = "</table></html>";
 	private final static String htmlTTRow = "<tr><td>%s</td><td>%s</td></tr>";
+	private final int MAX_TIP_LENGTH = 100;
 	/* in incremental selection mode only part of the suggestion set is rendered */
 	private int incrementalModeLevel = -1;
 
@@ -198,6 +199,18 @@ public class SuggestionComponent extends JComponent
 	public int getFragNr() {
 		return fragNr;
 	}
+	
+	/**
+	 * Returns how often this suggestion set has been selected before, 
+	 * allowing to only show suggestions that have already been approved
+	 * or disambiguated before.
+	 *  
+	 * @return the number of times this suggestion set has been selected for
+	 * the given input
+	 */
+	public int getSelectionCount() {
+		return sugModel.getSuggestionSet().getSelectionCount();
+	}
 
 	/**
 	 * Sets the level of incremental selection.
@@ -238,7 +251,7 @@ public class SuggestionComponent extends JComponent
 					ww -= 2;
 				}
 
-				g.setColor(Color.BLUE /*new Color(cr ^ 0x80, cg ^ 0x80, cb ^ 0x80)*/);
+				g.setColor(IGTConstants.ACTIVE_ANNO_BORDER_COLOR /*new Color(cr ^ 0x80, cg ^ 0x80, cb ^ 0x80)*/);
 				g.drawRect(rx, rect.y - 1, ww, height - rect.y - 2);
 			}
 		}
@@ -271,7 +284,7 @@ public class SuggestionComponent extends JComponent
 				ww -= 2;
 			}
 
-			g.setColor(Color.BLUE /*new Color(cr ^ 0x80, cg ^ 0x80, cb ^ 0x80)*/);
+			g.setColor(IGTConstants.ACTIVE_ANNO_BORDER_COLOR /*new Color(cr ^ 0x80, cg ^ 0x80, cb ^ 0x80)*/);
 			g.drawRect(rx, rect.y - 1, ww, height - rect.y - 2);
 			// cover the fragments right of this fragment
 			int cvx = rect.x + rect.width + 2;
@@ -579,12 +592,12 @@ public class SuggestionComponent extends JComponent
 			for (int i = 0; i < entry.getLexItems().size(); i++) {
 				LexItem lex = entry.getLexItems().get(i);
 				if (lex instanceof LexAtom) {
-					sb.append(String.format(htmlTTRow, lex.getType(), ((LexAtom) lex).getLexValue()));
+					sb.append(String.format(htmlTTRow, lex.getType(), checkLength(((LexAtom) lex).getLexValue())));
 				} else if (lex instanceof LexCont) {
 					LexCont lc = (LexCont) lex;
 					if (lc.getLexItems() != null) {
 						for (LexItem li : lc.getLexItems()) {
-							sb.append(String.format(htmlTTRow, li.getType(), ((LexAtom) li).getLexValue()));
+							sb.append(String.format(htmlTTRow, li.getType(), checkLength(((LexAtom) li).getLexValue())));
 						}
 					}
 				}
@@ -596,6 +609,18 @@ public class SuggestionComponent extends JComponent
 
 		return null;
 	}
+	
+	/*
+	 * To prevent tool tips to become too wide, check and limit the length of
+	 * the value of entry field. 
+	 */
+	private String checkLength(String value) {
+		if (value.length() >= MAX_TIP_LENGTH) {
+			return value.substring(0, MAX_TIP_LENGTH);
+		}
+		return value;
+	}
+	
 	/** for setting a breakpoint */
 //	@Override
 //	public void update(Graphics g) {

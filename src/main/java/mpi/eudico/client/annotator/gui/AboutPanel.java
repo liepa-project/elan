@@ -187,6 +187,7 @@ public class AboutPanel extends JPanel {
         model.addRow(new String[] {"Gemma Barbera", "Catalan, Spanish"});
         model.addRow(new String[] {"Li Bin", "Chinese Simplified"});
         model.addRow(new String[] {"Carl B\u00f6rstell", "Swedish"});
+        model.addRow(new String[] {"Christoph Bracks", "Indonesian"});      
         model.addRow(new String[] {"Elisabet Eir Cortes", "Swedish"});
         model.addRow(new String[] {"Onno Crasborn", "Dutch"});
         model.addRow(new String[] {"Thomas Debay", "French"});

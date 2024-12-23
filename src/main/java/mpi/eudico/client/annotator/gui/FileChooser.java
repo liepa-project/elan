@@ -2358,18 +2358,29 @@ public class FileChooser {
                             dialog.setFilenameFilter(new FileNameFilterList());
                             String templateDir = Preferences.getString("MediaDir", null);
                             dialog.setDirectory(templateDir == null ? Constants.USERHOME : templateDir);
+                            dialog.setMultipleMode(true);
                         }
 
                         if (multiFileDialogMode == GENERIC) {
                             dialog.setTitle(genericDlgTitle);
+                            dialog.setMultipleMode(true);
                         }
                         Window tw = showSubstituteTitle(dialog.getTitle());
                         dialog.setVisible(true);
                         hideSubstituteTitle(tw);
 
-                        String file = dialog.getFile();
-                        if (file != null) {
-                            addFile(new File(dialog.getDirectory(), dialog.getFile()));
+                        if(dialog.isMultipleMode()) {
+                        	File[] files = dialog.getFiles();
+                        	for(File file :files) {
+                        		if (file != null && file.getName() != null) {
+                            		addFile(new File(dialog.getDirectory(), file.getName()));
+                            	}
+                        	}
+                        }else {
+                        	String file = dialog.getFile();
+                        	if (file != null) {
+                        		addFile(new File(dialog.getDirectory(), dialog.getFile()));
+                        	}
                         }
 
                         if (multiFileDialogMode == MEDIA_TEMPLATE && dialog.getDirectory() != null) {

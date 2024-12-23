@@ -13,13 +13,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 
 import mpi.eudico.client.annotator.ElanLocale;
 import mpi.eudico.client.annotator.gui.ClosableDialog;
@@ -99,6 +99,7 @@ public class LexiconLoginDialog extends ClosableDialog implements ActionListener
 		cancelBtn.addActionListener(this);
 		
 		JPanel mainPnl = new JPanel(new GridBagLayout());
+		mainPnl.setBorder(new EmptyBorder(6, 6, 6, 6));
 		GridBagConstraints c = new GridBagConstraints();
 		
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -108,43 +109,46 @@ public class LexiconLoginDialog extends ClosableDialog implements ActionListener
 		c.gridwidth = 2;
 		mainPnl.add(introLbl,c);
 		
-		c.insets = new Insets(15,5,0,0);
+		c.insets = new Insets(5,0,0,5);
+		c.weightx = 0;
 		c.gridx = 0;
 		c.gridy = 1;
 		c.gridwidth = 1;
 		mainPnl.add(usernameLbl, c);
 		
-		c.insets = new Insets(15,5,0,5);
+		c.insets = new Insets(5,0,0,0);
+		c.weightx = 0.5;
 		c.gridx = 1;
 		c.gridy = 1;
 		mainPnl.add(usernameFld, c);
 		
-		c.insets = new Insets(5,5,0,0);
+		c.insets = new Insets(5,0,0,5);
+		c.weightx = 0;
 		c.gridx = 0;
 		c.gridy = 2;
 		c.gridwidth = 1;
 		mainPnl.add(passwordLbl, c);
 		
-		c.insets = new Insets(5,5,0,5);
+		c.insets = new Insets(5,0,0,0);
+		c.weightx = 0.5;
 		c.gridx = 1;
 		c.gridy = 2;
 		mainPnl.add(passwordFld, c);
 		
 		JPanel buttonPnl = new JPanel();
-		buttonPnl.setLayout(new BoxLayout(buttonPnl, BoxLayout.LINE_AXIS));
 		buttonPnl.add(Box.createHorizontalGlue());
 		buttonPnl.add(okBtn);
 		buttonPnl.add(Box.createRigidArea(new Dimension(10, 0)));
 		buttonPnl.add(cancelBtn);
 		
-		c.anchor = GridBagConstraints.EAST;
+		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(5,5,5,5);
 		c.gridx = 0;
 		c.gridy = 3;
 		c.gridwidth = 2;
 		mainPnl.add(buttonPnl, c);
 		
-		mainPnl.setPreferredSize(new Dimension(460, 160));
+		mainPnl.setPreferredSize(new Dimension(460, 200));
 		
 		setContentPane(mainPnl);
 		getRootPane().setDefaultButton(okBtn);

@@ -147,7 +147,7 @@ public class HunspellChecker implements SpellChecker {
 		List<Pair<String, List<String>>> suggestions = new ArrayList<Pair<String, List<String>>>();
 		
 		// Simple split on one or more spaces
-		String[] words = text.split("\\b");
+		String[] words = text.split("\\s+");
 		
 		for(int i = 0; i < words.length; i++) {
 			String word = words[i];

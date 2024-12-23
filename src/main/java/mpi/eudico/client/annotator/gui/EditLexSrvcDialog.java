@@ -494,6 +494,7 @@ public class EditLexSrvcDialog extends ClosableDialog implements ActionListener,
             updateServiceNameBox();
             updateUIforSelectedService();
         }
+        closeDialog(); 
     }
 
     @Override

@@ -1,5 +1,6 @@
 package nl.mpi.recognizer.local.whisper.transcriber;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,11 +49,11 @@ public class CommandCreator {
 
     public WhisperArguments getWhisperArguments(
         Map<String, String> paramMapString,
-        Map<String, Float> paramMapFloat
-    ) throws URISyntaxException {
+        Map<String, Float> paramMapFloat,
+        File baseDir) throws URISyntaxException {
         DirectoryPath directoryPath = new DirectoryPath();
         return new WhisperArguments(
-            directoryPath.getDirPath(getMappedValue(paramMapString, RUN_COMMAND)),
+            directoryPath.getDirPath(getMappedValue(paramMapString, RUN_COMMAND), baseDir),
             getMappedValue(paramMapString, AUDIO),
             WhisperModel.fromString(getMappedValue(paramMapString, MODEL)),
             Optional.ofNullable(WhisperLanguage.fromString(getMappedValue(paramMapString, LANGUAGE))),

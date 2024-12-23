@@ -2,6 +2,7 @@ package nl.mpi.recognizer.local.whisper.transcriber;
 
 import org.junit.jupiter.params.provider.Arguments;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -22,16 +23,17 @@ public class CommandCreatorTestDataProvider {
 
     private static final String USER_HOME = System.getProperty("user.home").replace("\\", "/");
 
+    private static final String BASE_PATH = "/Users/hafreh/elan_extensions/whisper-standalone";
     public static Stream<Arguments> provideParamsForGetWhisperArguments() throws URISyntaxException {
 
         return Stream.of(
-            Arguments.of(getStringStringMap(), getStringFloatMap(), getWhisperArguments()),
-            Arguments.of(getStringStringMapWithDifferentValues(), getStringFloatMap(), getWhisperArgumentsWithDifferentValues()),
-            Arguments.of(getMandatoryArguments(BASE.toString()), emptyMap(), getArgumentsWithEmptyOptionals()),
-            Arguments.of(getMandatoryArguments(SMALL_EN.toString()), emptyMap(), getArgumentsWithDifferentValues()),
-            Arguments.of(getMandatoryArguments(BASE.toString()), null, getArgumentsWithEmptyOptionals()),
-            Arguments.of(emptyMap(), emptyMap(), getArgumentsWithMandatoriesNull()),
-            Arguments.of(null, null, getArgumentsWithMandatoriesNull())
+            Arguments.of(getStringStringMap(), getStringFloatMap(), BASE_PATH, getWhisperArguments()),
+            Arguments.of(getStringStringMapWithDifferentValues(), getStringFloatMap(), BASE_PATH,getWhisperArgumentsWithDifferentValues()),
+            Arguments.of(getMandatoryArguments(BASE.toString()), emptyMap(), BASE_PATH,getArgumentsWithEmptyOptionals()),
+            Arguments.of(getMandatoryArguments(SMALL_EN.toString()), emptyMap(), BASE_PATH, getArgumentsWithDifferentValues()),
+            Arguments.of(getMandatoryArguments(BASE.toString()), null, BASE_PATH, getArgumentsWithEmptyOptionals()),
+            Arguments.of(emptyMap(), emptyMap(), BASE_PATH, getArgumentsWithMandatoriesNull()),
+            Arguments.of(null, null, BASE_PATH, getArgumentsWithMandatoriesNull())
         );
     }
 
@@ -43,15 +45,15 @@ public class CommandCreatorTestDataProvider {
         invalidModelArguments.put(MODEL.getName(), "notAKnownModel");
 
         return Stream.of(
-            Arguments.of(invalidLanguageCodeArguments, getStringFloatMap()),
-            Arguments.of(invalidModelArguments, getStringFloatMap()),
-            Arguments.of(invalidModelArguments, Collections.singletonMap("unprocessedFloat", 20240318.1447))
+            Arguments.of(invalidLanguageCodeArguments, getStringFloatMap(), BASE_PATH),
+            Arguments.of(invalidModelArguments, getStringFloatMap(), BASE_PATH),
+            Arguments.of(invalidModelArguments, Collections.singletonMap("unprocessedFloat", 20240318.1447), BASE_PATH)
         );
     }
 
     public static Stream<Arguments> provideParamsForToCommandLineFormat() throws URISyntaxException {
         return Stream.of(
-            Arguments.of(new CommandCreator().getWhisperArguments(getStringStringMap(), getStringFloatMap()), new String[]{
+            Arguments.of(new CommandCreator().getWhisperArguments(getStringStringMap(), getStringFloatMap(), new File("/Users/hafreh/elan_extensions/whisper-standalone")), new String[]{
                 USER_HOME + "/elan_extensions/whisper-standalone/whisper_standalone202403141150",
                 "a202403141151.mp4",
                 "--model=base",

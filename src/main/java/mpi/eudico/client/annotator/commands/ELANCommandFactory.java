@@ -940,6 +940,10 @@ public class ELANCommandFactory {
      */
     public static final String KOREAN = "\ud55c\uad6d\uc5b4";
     /**
+     * constant for language indonesian
+     */
+    public static final String INDONESIAN = "Indonesian";
+    /**
      * constant for custom language
      */
     public static final String CUSTOM_LANG = "Menu.Options.Language.Custom";
@@ -1661,6 +1665,7 @@ public class ELANCommandFactory {
         languages.put(FRENCH, ElanLocale.FRENCH);
         languages.put(JAPANESE, ElanLocale.JAPANESE);
         languages.put(KOREAN, ElanLocale.KOREAN);
+        languages.put(INDONESIAN, ElanLocale.INDONESIAN);
         languages.put(CUSTOM_LANG, ElanLocale.CUSTOM);
     }
 

@@ -19,9 +19,9 @@ public class IGTSuggestionViewerRenderInfo extends IGTSuggestionRenderInfo {
 	/** the margin between suggestions */
 	public int suggestionMargin = IGTConstants.SUGGESTION_MARGIN;
 	/** header background color */
-	public Color headerBackGround = new Color(200, 200, 240);
+	public Color headerBackGround = IGTConstants.SUGGESTION_HEADER_BACKGROUND;
 	/** background color of a block */
-	public Color blockBackGround = new Color(225, 225, 255);
+	public Color blockBackGround = IGTConstants.SUGGESTION_BLOCK_BACKGROUND;
 
 	/**
 	 * Creates a new viewer render info instance.

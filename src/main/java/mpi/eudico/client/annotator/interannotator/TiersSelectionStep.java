@@ -4,6 +4,7 @@ import mpi.eudico.client.annotator.ElanLocale;
 import mpi.eudico.client.annotator.gui.multistep.MultiStepPane;
 import mpi.eudico.client.annotator.gui.multistep.StepPane;
 import mpi.eudico.client.annotator.tier.SelectableContentTableModel;
+import mpi.eudico.client.annotator.tier.TierExportTable;
 import mpi.eudico.client.util.UneditableTableModel;
 import mpi.eudico.server.corpora.clomimpl.abstr.TranscriptionImpl;
 import mpi.eudico.util.EmptyStringComparator;
@@ -13,9 +14,12 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 import java.util.*;
@@ -51,6 +55,11 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
     // two labels
     private JLabel hint1;
     private JLabel hint2;
+    
+    // two buttons
+    private JButton allButton;
+    private JButton noneButton;
+    private JPanel buttonPanel;
 
     // retrieve settings from previous steps globally
     private CompareConstants.METHOD method;
@@ -206,6 +215,8 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
         // update label texts
         hint1.setText(ElanLocale.getString("CompareAnnotatorsDialog.TierSelectionStep.Suggestion.Hint1"));
         hint2.setText(ElanLocale.getString("CompareAnnotatorsDialog.TierSelectionStep.Suggestion.Hint2"));
+        allButton.setText(ElanLocale.getString("Button.SelectAll"));
+        noneButton.setText(ElanLocale.getString("Button.SelectNone"));
     }
 
     /*
@@ -216,6 +227,16 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
         // create labels showing a hint
         hint1 = new JLabel();
         hint2 = new JLabel();
+        buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        allButton = new JButton();
+        noneButton = new JButton();
+        buttonPanel.add(allButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(6, 0)));
+        buttonPanel.add(noneButton);
+        SelectionAction buttonAction = new SelectionAction();
+        allButton.addActionListener(buttonAction);
+        noneButton.addActionListener(buttonAction);
 
         /*
          * With the labels, all language sensitive components have been created,
@@ -264,10 +285,18 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
         gbc.weighty = 1.0;
         tierPanel.add(table1ScrollPane, gbc);
         gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.NORTHEAST;
+        gbc.insets = new Insets(3, 6, 6, 6);
+        gbc.weighty = 0.0;
+        tierPanel.add(buttonPanel, gbc);
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weighty = 0.0;
+        gbc.insets = insets;
         tierPanel.add(hint2, gbc);
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weighty = 1.0;
         tierPanel.add(table2ScrollPane, gbc);
@@ -346,10 +375,18 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
             gbc.weighty = 1.0;
             tierPanel.add(table1ScrollPane, gbc);
             gbc.gridy = 2;
+            gbc.fill = GridBagConstraints.NONE;
+            gbc.anchor = GridBagConstraints.NORTHEAST;
+            gbc.weighty = 0.0;
+            gbc.insets = new Insets(3, 6, 6, 6);
+            tierPanel.add(buttonPanel, gbc);
+            gbc.gridy = 3;
+            gbc.anchor = GridBagConstraints.NORTHWEST;
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.weighty = 0.0;
+            gbc.insets = insets;
             tierPanel.add(hint2, gbc);
-            gbc.gridy = 3;
+            gbc.gridy = 4;
             gbc.fill = GridBagConstraints.BOTH;
             gbc.weighty = 1.0;
             tierPanel.add(table2ScrollPane, gbc);
@@ -376,6 +413,12 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
             gbc.fill = GridBagConstraints.BOTH;
             gbc.weighty = 1.0;
             tierPanel.add(table1ScrollPane, gbc);
+            gbc.gridy = 2;
+            gbc.fill = GridBagConstraints.NONE;
+            gbc.anchor = GridBagConstraints.NORTHEAST;
+            gbc.weighty = 0.0;
+            gbc.insets = new Insets(3, 6, 6, 6);
+            tierPanel.add(buttonPanel, gbc);
             //
             hint1.setText(ElanLocale.getString("CompareAnnotatorsDialog.TierSelectionStep.Suggestion.Hint5"));
         }
@@ -435,6 +478,10 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
                 tierModel1.addRow(rowData);
                 tierModel2.addRow(rowData);
             }
+            if (table1 instanceof TierExportTable) {
+            	table1 = new JTable();
+            	table1ScrollPane.setViewportView(table1);
+            }
             table1.setModel(tierModel1);
             table2.setModel(tierModel2);
             table1.getTableHeader().setReorderingAllowed(false);
@@ -468,6 +515,11 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
                 row++;
             }
 
+            if (!(table1 instanceof TierExportTable)) {
+            	table1 = new TierExportTable(new DefaultTableModel(0, 1), true);
+            	table1ScrollPane.setViewportView(table1);
+            }
+            
             table1.setModel(tierModel1);
             table2.setModel(tierModel2);
             table1.getTableHeader().setReorderingAllowed(false);
@@ -497,6 +549,10 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
                 tierColumnData.add(s);
             }
             SelectableContentTableModel tierModel1 = new SelectableContentTableModel(tierColumnData);
+            if (!(table1 instanceof TierExportTable)) {
+            	table1 = new TierExportTable(new DefaultTableModel(0, 1), true);
+            	table1ScrollPane.setViewportView(table1);
+            }
             table1.setModel(tierModel1);
             table1.getTableHeader().setReorderingAllowed(false);
 
@@ -604,7 +660,8 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
     }
 
     /**
-     * Listen to both the first and second table in the pane in case the table(s) does/do not contain check boxes (?).
+     * Listen to both the first and second table in the pane and update both the selected state of
+     * tiers in the tables and the finish button.
      */
     @Override
     public void valueChanged(ListSelectionEvent e) {
@@ -828,5 +885,23 @@ public class TiersSelectionStep extends StepPane implements ListSelectionListene
             rowSorter.setComparator(sortableColumnIndices[i], emptyComp);
         }
         table.setRowSorter(rowSorter);
+    }
+    
+    /**
+     * Action listener for 'select' all and 'select' none buttons.
+     */
+    private class SelectionAction implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			boolean selectAll = (e.getSource() == allButton);
+	        TableModel tierModel = table1.getModel();
+	        if (tierModel instanceof SelectableContentTableModel tm) {
+	        	if (selectAll) {
+	        		tm.selectAll();
+	        	} else {
+	        		tm.selectNone();
+	        	}
+	        }
+		}  	
     }
 }

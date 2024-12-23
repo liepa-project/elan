@@ -41,7 +41,7 @@ public class ELAN {
     public static final int major = 6;
 
     /** the minor version value */
-    public static final int minor = 8;
+    public static final int minor = 9;
 
     /** the micro (bug fix) version value
      *  No longer used as of ELAN 5.0, Oct 2017 */

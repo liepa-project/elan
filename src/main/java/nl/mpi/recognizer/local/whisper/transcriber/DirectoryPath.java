@@ -19,13 +19,11 @@ public class DirectoryPath {
     public static final String WHISPER_OUT_HOME = USER_HOME.concat(WHISPER_HOME);
     public static final String EXE = ".exe";
 
-    public String getDirPath(String path) {
+    public String getDirPath(String path, File baseDir) {
         String commandExecutable = path;
 
         if (isNotAbsolutePath(commandExecutable)) {
-            commandExecutable = USER_HOME
-                    .concat(WHISPER_STANDALONE_EXEC_LOCATION)
-                    .concat(path);
+            commandExecutable = baseDir.toString().concat(FORWARD_SLASH).concat(path);
         }
         if (getOsName() != null && getOsName().toLowerCase().startsWith("win")) {
             commandExecutable = addMissingExeExtension(commandExecutable);

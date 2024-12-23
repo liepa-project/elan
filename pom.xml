@@ -5,7 +5,7 @@
     <!-- this project -->
     <groupId>nl.mpi</groupId>
     <artifactId>elan</artifactId>
-    <version>6.8</version>
+    <version>6.9</version>
     <packaging>jar</packaging>
     <name>ELAN Multimedia Annotator</name>
     <organization>
@@ -137,7 +137,7 @@
         <dependency>
             <groupId>nl.mpi.lexan</groupId>
             <artifactId>lexan-api</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>nl.mpi</groupId>
@@ -510,6 +510,7 @@
                 </configuration>
                 <executions>
                     <execution>
+                       <phase>site</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>

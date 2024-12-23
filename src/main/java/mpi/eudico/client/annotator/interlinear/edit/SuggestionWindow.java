@@ -48,6 +48,8 @@ import javax.swing.JToggleButton;
 import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
+
 import mpi.eudico.client.annotator.ElanLocale;
 import mpi.eudico.client.annotator.Preferences;
 import mpi.eudico.client.annotator.interlinear.edit.SuggestionComponent.MouseAndMotionListener;
@@ -105,12 +107,16 @@ MouseAndMotionListener, ActionListener, ItemListener {
 	//private JToggleButton incrementalSelectButton;// maybe use this if there are suitable icons
 	private JCheckBox incrementalSelectCB;
 	private JLabel incrementalLevelLabel;
+	private JPanel incrementalPanel;
 	private JCheckBox reuseWindowBoundsCB;
 	private JPanel toolBarPanel;
 	private SpringLayout springLayout;
 	private WindowHandler windowListener;
 	private JPopupMenu sugComponentPM;
 	private JMenuItem removeMI;
+	private JCheckBox showOnlyChosenBeforeCB;
+	private JLabel showOnlyChosenLabel;
+	private JPanel showOnlyChosenPanel;
 
 
     private Point dragStartPoint;
@@ -129,12 +135,14 @@ MouseAndMotionListener, ActionListener, ItemListener {
 	private Map<Integer, List<SuggestionComponent>> incrementMap = null;// lists of SuggestionComponents per level
 	private boolean reversedOrderMode = false;
 	private Rectangle prefWindowBounds = null;
+	private boolean showOnlyChosenBeforeMode = false;
     // State
 	// pref keys
 	private final String PREF_INCREMENTAL = "SuggestionWindow.Incremental";
 	private final String PREF_REVERSED = "SuggestionWindow.ReversedOrder";
 	private final String PREF_REUSE_WINDOW_BOUNDS = "SuggestionWindow.ReuseWindowBounds";
 	private final String PREF_WINDOW_BOUNDS = "SuggestionWindow.WindowBounds";
+	private final String PREF_CHOSEN_ONLY = "SuggestionWindow.OnlyShowPreviouslyChosen";
 
 	/**
 	 * Constructor with a frame as the owner.
@@ -169,10 +177,6 @@ MouseAndMotionListener, ActionListener, ItemListener {
 	 * Initializes the ui components, adds the listeners.
 	 */
 	private void initComponents() {
-		// Make JFrame a window without title bar, but hopefully with resizer in the south-east corner.
-		//setUndecorated(true);
-		//setResizable(true);
-
 		selectorScrollPane = new JScrollPane(selector);
 
 		getContentPane().setLayout(new BorderLayout(2, 2));
@@ -213,7 +217,7 @@ MouseAndMotionListener, ActionListener, ItemListener {
 	private JPanel createToolPanel() {
 		springLayout = new SpringLayout();
 		JPanel p = new JPanel(springLayout);
-		int gap = 4;
+		int gap = IGTConstants.TEXT_MARGIN_LEFT;
 		int w = gap;
 		int h = gap;
 		Icon ascendIcon = null;
@@ -230,36 +234,83 @@ MouseAndMotionListener, ActionListener, ItemListener {
 		p.add(reverseButton);
 		w += (reverseButton.getPreferredSize().width + gap);
 
+		SpringLayout incrementLayout = new SpringLayout();
+		incrementalPanel = new JPanel(incrementLayout);
+		incrementalPanel.setBorder(new LineBorder(getForeground()));
 		incrementalSelectCB = new JCheckBox(ElanLocale.getString("InterlinearEditor.Suggestions.IncrementalSelection"));
 		incrementalSelectCB.setToolTipText(ElanLocale.getString("InterlinearEditor.Suggestions.IncrementalSelectionToolTip"));
 		incrementalSelectCB.addItemListener(this);
-		p.add(incrementalSelectCB);
-		w += (incrementalSelectCB.getPreferredSize().width + gap);
-		h += Math.max(reverseButton.getPreferredSize().height, incrementalSelectCB.getPreferredSize().height);
-		h += gap;
+		incrementalPanel.add(incrementalSelectCB);
 
-		incrementalLevelLabel = new JLabel();
-		incrementalLevelLabel.setForeground(Color.BLUE);
-		p.add(incrementalLevelLabel);
+		incrementalLevelLabel = new JLabel("-");
+		incrementalLevelLabel.setForeground(IGTConstants.ACTIVE_ANNO_BORDER_COLOR);
+		incrementalPanel.add(incrementalLevelLabel);
+		p.add(incrementalPanel);
+		incrementalPanel.setPreferredSize(new Dimension(incrementalSelectCB.getPreferredSize().width + 3 * gap, 
+				incrementalSelectCB.getPreferredSize().height + incrementalLevelLabel.getPreferredSize().height + 3 * gap));
+		w += (incrementalPanel.getPreferredSize().width + gap);
+		h += incrementalPanel.getPreferredSize().height;
+
+		SpringLayout selectedLayout = new SpringLayout();
+		showOnlyChosenPanel = new JPanel(selectedLayout);
+		showOnlyChosenPanel.setBorder(new LineBorder(getForeground()));
+		showOnlyChosenBeforeCB = new JCheckBox(ElanLocale.getString(
+				"InterlinearEditor.Suggestions.ShowOnlyChosenBefore"));
+		showOnlyChosenBeforeCB.setToolTipText(ElanLocale.getString(
+				"InterlinearEditor.Suggestions.ShowOnlyChosenBeforeToolTip"));
+		showOnlyChosenBeforeCB.addItemListener(this);
+		showOnlyChosenPanel.add(showOnlyChosenBeforeCB);
+		showOnlyChosenLabel = new JLabel("-");
+		showOnlyChosenLabel.setEnabled(false);
+		showOnlyChosenPanel.add(showOnlyChosenLabel);
+		p.add(showOnlyChosenPanel);
+		showOnlyChosenPanel.setPreferredSize(new Dimension(
+				showOnlyChosenBeforeCB.getPreferredSize().width + 3 * gap, 
+				showOnlyChosenBeforeCB.getPreferredSize().height + showOnlyChosenLabel.getPreferredSize().height + 3 * gap));
+		w += (showOnlyChosenPanel.getPreferredSize().width + gap);
 
 		springLayout.putConstraint(SpringLayout.WEST, reverseButton, gap,
 				SpringLayout.WEST, p);
 		springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, reverseButton,
 				0, SpringLayout.VERTICAL_CENTER, p);
-		springLayout.putConstraint(SpringLayout.WEST, incrementalSelectCB, gap,
+		// layout the incremental selection panel
+		incrementLayout.putConstraint(SpringLayout.WEST, incrementalSelectCB, gap,
+				SpringLayout.WEST, incrementalPanel);
+		incrementLayout.putConstraint(SpringLayout.SOUTH, incrementalSelectCB, gap,
+				SpringLayout.VERTICAL_CENTER, incrementalPanel);
+
+		incrementLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, incrementalLevelLabel,
+				0, SpringLayout.HORIZONTAL_CENTER, incrementalSelectCB);
+		incrementLayout.putConstraint(SpringLayout.NORTH, incrementalLevelLabel, gap,
+				SpringLayout.VERTICAL_CENTER, incrementalPanel);
+
+		springLayout.putConstraint(SpringLayout.WEST, incrementalPanel, gap,
 				SpringLayout.EAST, reverseButton);
-		springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, incrementalSelectCB,
+		springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, incrementalPanel,
 				0, SpringLayout.VERTICAL_CENTER, p);
-		springLayout.putConstraint(SpringLayout.WEST, incrementalLevelLabel, 2 * gap,
-				SpringLayout.EAST, incrementalSelectCB);
-		springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, incrementalLevelLabel,
+		// layout the show only previously selected suggestions panel
+		selectedLayout.putConstraint(SpringLayout.WEST, showOnlyChosenBeforeCB, gap,
+				SpringLayout.WEST, showOnlyChosenPanel);
+		selectedLayout.putConstraint(SpringLayout.SOUTH, showOnlyChosenBeforeCB, gap,
+				SpringLayout.VERTICAL_CENTER, showOnlyChosenPanel);
+
+		selectedLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, showOnlyChosenLabel,
+				0, SpringLayout.HORIZONTAL_CENTER, showOnlyChosenBeforeCB);
+		selectedLayout.putConstraint(SpringLayout.NORTH, showOnlyChosenLabel, gap,
+				SpringLayout.VERTICAL_CENTER, showOnlyChosenPanel);
+
+		springLayout.putConstraint(SpringLayout.WEST, showOnlyChosenPanel, gap,
+				SpringLayout.EAST, incrementalPanel);
+		springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, showOnlyChosenPanel,
 				0, SpringLayout.VERTICAL_CENTER, p);
 
 		reuseWindowBoundsCB = new JCheckBox(ElanLocale.getString("InterlinearEditor.Suggestions.RestoreWindowBounds"));
 		p.add(reuseWindowBoundsCB);
 
-		springLayout.putConstraint(SpringLayout.EAST, reuseWindowBoundsCB, -gap,
-				SpringLayout.EAST, p);
+		springLayout.putConstraint(SpringLayout.WEST, reuseWindowBoundsCB, 2 * gap,
+				SpringLayout.EAST, showOnlyChosenPanel);
+//		springLayout.putConstraint(SpringLayout.EAST, reuseWindowBoundsCB, -gap,
+//				SpringLayout.EAST, p);
 		springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, reuseWindowBoundsCB,
 				0, SpringLayout.VERTICAL_CENTER, p);
 		w += (reuseWindowBoundsCB.getPreferredSize().width + 2 * gap);
@@ -315,6 +366,12 @@ MouseAndMotionListener, ActionListener, ItemListener {
 				prefWindowBounds = Preferences.getRect(PREF_WINDOW_BOUNDS, null);
 			}
 		}
+		
+		Boolean chosenOnlyPref = Preferences.getBool(PREF_CHOSEN_ONLY, null);
+		if (chosenOnlyPref != null && chosenOnlyPref.booleanValue()) {
+			showOnlyChosenBeforeMode = true;
+			showOnlyChosenBeforeCB.setSelected(showOnlyChosenBeforeMode);
+		}
 	}
 
 	/**
@@ -328,6 +385,7 @@ MouseAndMotionListener, ActionListener, ItemListener {
 		if (reuseWindowBounds) {
 			Preferences.set(PREF_WINDOW_BOUNDS, this.getBounds(), null);
 		}
+		Preferences.set(PREF_CHOSEN_ONLY, Boolean.valueOf(showOnlyChosenBeforeMode), null);
 	}
 
 	/**
@@ -342,9 +400,7 @@ MouseAndMotionListener, ActionListener, ItemListener {
 
 	/**
 	 * If there is only one suggestion, generate an event to select that one selection.
-	 * TODO this shouldn't be done here actually but before this window is created.
-	 * But the auto-interlinearization mode currently depends on this window becoming visible
-	 * (should be changed). (This solution still doesn't work with Analyze/Interlinearize mode).
+	 * This isn't done here anymore, this is now handle before this window is created.
 	 *
 	 * @see java.awt.Window#setVisible(boolean)
 	 */
@@ -447,7 +503,7 @@ MouseAndMotionListener, ActionListener, ItemListener {
 				}
 			} else {
 				// There isn't really any need to check.
-				// If the source is the scroll pane but but not a SuggestionComponent,
+				// If the source is the scroll pane but not a SuggestionComponent,
 				// the user clicked outside of them and selectedIndex will be -1.
 				int xp = e.getPoint().x + selectorScrollPane.getHorizontalScrollBar().getValue();
 				int xy = e.getPoint().y + selectorScrollPane.getVerticalScrollBar().getValue();
@@ -561,6 +617,7 @@ MouseAndMotionListener, ActionListener, ItemListener {
 				if (hash == sc.getHashOfFrag(fragNr)) {
 					sc.setFragNr(nextFragNr);
 					nVisible += 1;
+					sc.repaint();
 				} else {
 					sc.setVisible(false);
 				}
@@ -574,11 +631,7 @@ MouseAndMotionListener, ActionListener, ItemListener {
 			// This can't happen. At least component #selectedIndex should still be there.
 		}
 
-		selector.revalidate();
-		selectorScrollPane.revalidate();
-		selector.revalidate();
-		invalidate();
-		repaint();
+		selector.doLayout();
 	}
 
 	/**
@@ -593,6 +646,7 @@ MouseAndMotionListener, ActionListener, ItemListener {
 				((SuggestionComponent) c).setFragNr(SuggestionComponent.NO_FRAG);
 				((SuggestionComponent) c).setIncrementalModeLevel(-1);
 				c.setVisible(true);
+				c.repaint();
 			}
 		}
 		selector.doLayout();
@@ -640,6 +694,7 @@ MouseAndMotionListener, ActionListener, ItemListener {
 			}
 			// apply this selection
 			applySelectedSuggestionAndClose(curCompList.get(0).getIndex());
+			return;
 		}
 
 		// update the visible components for next fragment
@@ -705,6 +760,7 @@ MouseAndMotionListener, ActionListener, ItemListener {
 						incrementLevel != MAX_INCREMENT_LEVEL ? incrementLevel : -1);
 				c.setVisible(true);
 			}
+			c.repaint();
 		}
 		// update the label
 		if (incrementLevel != MAX_INCREMENT_LEVEL) {
@@ -715,6 +771,50 @@ MouseAndMotionListener, ActionListener, ItemListener {
 		}
 		springLayout.layoutContainer(toolBarPanel);
 		selector.doLayout();
+	}
+	
+	/*
+	 * Makes all suggestions visible unless in {@code showOnlyChosenBeforeMode}
+	 * mode, in which case only suggestions are shown that were chosen before.
+	 * This is not compatible with the incremental mode (mutual exclusive).
+	 */
+	private void showHideSuggestionsNotSelectedBefore() {
+		for (Component comp : selector.getComponents()) {
+			if (comp instanceof SuggestionComponent sugComp) {
+				int count = sugComp.getSelectionCount();
+				if (count == 0 && showOnlyChosenBeforeMode) { 
+					sugComp.setVisible(false);
+				} else {
+					sugComp.setVisible(true);
+				}
+			}
+		}
+		selector.doLayout();
+		showVisibilityCount();
+	}
+	
+	/**
+	 * Updates the label showing how many suggestions are visible and how many
+	 * are hidden. Can be useful even if {@code showOnlyChosenBeforeMode} is
+	 * not active (all suggestions visible).  (Currently not used in case of
+	 * {@code incrementalMode})
+	 */
+	private void showVisibilityCount() {
+		int showCount = 0;
+		int hideCount = 0;
+		
+		for (Component comp : selector.getComponents()) {
+			if (comp instanceof SuggestionComponent sugComp) {
+				if (sugComp.isVisible()) {
+					showCount++;
+				} else {
+					hideCount++;
+				}
+			}
+		}
+
+		showOnlyChosenLabel.setText(String.format(
+				ElanLocale.getString("InterlinearEditor.Suggestions.VisibilityInfo"), showCount, hideCount));
 	}
 
 	@Override // MouseListener
@@ -776,7 +876,7 @@ MouseAndMotionListener, ActionListener, ItemListener {
 
 	@Override // ComponentListener
 	public void componentResized(ComponentEvent e) {
-		checkToolPanelLabels() ;
+		//checkToolPanelLabels() ;
 	}
 
 	@Override // ComponentListener
@@ -806,6 +906,11 @@ MouseAndMotionListener, ActionListener, ItemListener {
 		}
 		if (reversedOrderMode) {
 			selector.reverseOrderOfSuggestions();
+		}
+		if (showOnlyChosenBeforeMode) {
+			showHideSuggestionsNotSelectedBefore();
+		} else if (!incrementalMode) {
+			showVisibilityCount();
 		}
 	}
 
@@ -946,6 +1051,10 @@ MouseAndMotionListener, ActionListener, ItemListener {
 			case KeyEvent.VK_I:
 				incrementalSelectCB.doClick();
 				break;
+				
+			case KeyEvent.VK_C:
+				showOnlyChosenBeforeCB.doClick();
+				break;
 			}
 		}
 	}
@@ -977,8 +1086,8 @@ MouseAndMotionListener, ActionListener, ItemListener {
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getSource() == incrementalSelectCB) {
+			incrementalMode = e.getStateChange() == ItemEvent.SELECTED;
 			if (selector != null) {
-				incrementalMode = e.getStateChange() == ItemEvent.SELECTED;
 				if (incrementalMode) {
 					incrementMap = new LinkedHashMap<Integer, List<SuggestionComponent>>(8);
 					incrementLevel = 0;
@@ -989,39 +1098,36 @@ MouseAndMotionListener, ActionListener, ItemListener {
 					incrementalLevelLabel.setText("");
 				}
 			}
-			checkToolPanelLabels();
+			updateOnlyChosenPanel(!incrementalMode);
 			// the check box might have been clicked and therefore have the focus
 			incrementalSelectCB.transferFocusUpCycle();
+			incrementalPanel.transferFocusUpCycle();
+		} else if (e.getSource() == showOnlyChosenBeforeCB) {
+			showOnlyChosenBeforeMode = e.getStateChange() == ItemEvent.SELECTED;
+			updateIncrementPanel(!showOnlyChosenBeforeMode);
+			if (selector != null) {
+				showHideSuggestionsNotSelectedBefore();
+			}
+			showOnlyChosenBeforeCB.transferFocusUpCycle();
+			showOnlyChosenPanel.transferFocusUpCycle();
 		}
 	}
-
-	/**
-	 * If there is too little space for the "Remember windows position" checkbox label and the
-	 * increment level label, hide the former label.
-	 */
-	private void checkToolPanelLabels() {
-		if (reuseWindowBoundsCB == null) {
-			return;
+	
+	private void updateIncrementPanel(boolean enable) {
+		incrementalSelectCB.setEnabled(enable);
+		incrementalLevelLabel.setEnabled(enable);
+		if (!enable) {
+			incrementalLevelLabel.setText("-");
 		}
-		// in incremental mode, check if there is enough space for the (re)store window checkbox
-		if (incrementalMode) {
-			if (reuseWindowBoundsCB.getX() > 0 && reuseWindowBoundsCB.getY() > 0) {
-				Rectangle leftComp = incrementalLevelLabel.getBounds();
-				if (leftComp.x + leftComp.width >= reuseWindowBoundsCB.getX()) {
-					reuseWindowBoundsCB.setToolTipText(reuseWindowBoundsCB.getText());
-					reuseWindowBoundsCB.setText("");
-				} else {
-					reuseWindowBoundsCB.setToolTipText(null);
-					reuseWindowBoundsCB.setText(ElanLocale.getString(
-							"InterlinearEditor.Suggestions.RestoreWindowBounds"));
-				}
-			}
+	}
+	
+	private void updateOnlyChosenPanel(boolean enable) {
+		showOnlyChosenBeforeCB.setEnabled(enable);
+		//showOnlyChosenLabel.setEnabled(enable);
+		if (!enable) {
+			showOnlyChosenLabel.setText("-");
 		} else {
-			if (reuseWindowBoundsCB.getText().isEmpty()) {
-				reuseWindowBoundsCB.setToolTipText(null);
-				reuseWindowBoundsCB.setText(ElanLocale.getString(
-						"InterlinearEditor.Suggestions.RestoreWindowBounds"));
-			}
+			showVisibilityCount();
 		}
 	}
 

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.plaf.BorderUIResource;
 import javax.swing.plaf.ColorUIResource;
 import javax.swing.plaf.metal.MetalLookAndFeel;
@@ -127,13 +128,19 @@ public class LaFUtil {
      * class has been created as well, using the same converted colors.
      */
 	public void setDarkThemeMetal() {
+		Map<Object, Object> metalDef = new HashMap<Object, Object>(UIManager.getDefaults());
 		MetalLookAndFeel.setCurrentTheme(new DarkOceanTheme());
-		
+		// re-install the Metal Look and Feel after changing the theme
+		try {
+			UIManager.setLookAndFeel(new MetalLookAndFeel());
+		} catch(UnsupportedLookAndFeelException ulf) {
+		}
+
 		// store the modified key-value pairs to add them at the end of the loops
         Map<String, Object> modifiedResourcesMap = new HashMap<String, Object>();
         
         // process all used Colors and ColorUIResources 
-        UIDefaults curLFDefaults = UIManager.getLookAndFeelDefaults();
+        UIDefaults curLFDefaults = UIManager.getDefaults();
         Map<Object, Object> uid = new HashMap<Object, Object>(curLFDefaults);
         Iterator<Object> keyIt = uid.keySet().iterator();
         while (keyIt.hasNext()) {
@@ -142,12 +149,17 @@ public class LaFUtil {
         	Object value = curLFDefaults.get(keyString);
 
         	if (value instanceof ColorUIResource || value instanceof Color) {
-        		if (!darkThemeColors.contains(value)) {// don't convert the new theme colors again
-	        		Color cur = getDarkColor(keyString, (Color) value);
-	            	if (value instanceof ColorUIResource) {
-	            		cur = new ColorUIResource(cur);
-	            	}
-	            	modifiedResourcesMap.put(keyString, cur);
+        		if (value.equals(metalDef.get(keyString))) {// not changed, converted yet
+        			if (lightToDarkMap.containsKey(value)) {
+        				modifiedResourcesMap.put(keyString, lightToDarkMap.get(value));
+        			} else {
+        				Color cur = getDarkColor(keyString, (Color) value);
+        				if (value instanceof ColorUIResource) {
+        					cur = new ColorUIResource(cur);
+        				}
+        				lightToDarkMap.put((Color)value, cur);
+        				modifiedResourcesMap.put(keyString, cur);
+        			}
         		}
         	} else if (value instanceof List<?>) {
         		// gradients
@@ -178,70 +190,69 @@ public class LaFUtil {
         		}
         	}
         }
-
-        // several properties seem to ignore the theme colors
-        modifiedResourcesMap.put("TabbedPane.selected", DarkOceanTheme.DARK_SECONDARY1);
-        modifiedResourcesMap.put("TabbedPane.tabAreaBackground", DarkOceanTheme.DARK_FOREGROUND);
-        modifiedResourcesMap.put("TabbedPane.unselectedBackground", DarkOceanTheme.DARK_CONTROL_TEXT_COLOR);
-        modifiedResourcesMap.put("TabbedPane.foreground", DarkOceanTheme.DARK_FOREGROUND);
-        modifiedResourcesMap.put("MenuBar.borderColor", DarkOceanTheme.DARK_SECONDARY1);
         
-		modifiedResourcesMap.put("Menu.acceleratorForeground", DarkOceanTheme.DARK_ACCELERATOR_COLOR);
-		modifiedResourcesMap.put("MenuItem.acceleratorForeground", DarkOceanTheme.DARK_ACCELERATOR_COLOR);
+        // manual adjustment of some colors for better results
+        // the default, converted selected tab color is very dark and difficult to discern
+        modifiedResourcesMap.put("TabbedPane.selected", DarkOceanTheme.DARK_SECONDARY1);
+        // more accent for the menu bar border
+        modifiedResourcesMap.put("MenuBar.borderColor", DarkOceanTheme.DARK_SECONDARY1);
+        // default converted color for acceleratorForeground hardly visible, replaced by a lighter color
+        modifiedResourcesMap.put("Menu.acceleratorForeground", DarkOceanTheme.DARK_ACCELERATOR_COLOR);
+        modifiedResourcesMap.put("MenuItem.acceleratorForeground", DarkOceanTheme.DARK_ACCELERATOR_COLOR);
 		modifiedResourcesMap.put("CheckBoxMenuItem.acceleratorForeground", DarkOceanTheme.DARK_ACCELERATOR_COLOR);
 		modifiedResourcesMap.put("RadioButtonMenuItem.acceleratorForeground", DarkOceanTheme.DARK_ACCELERATOR_COLOR);
-		modifiedResourcesMap.put("TableHeader.foreground", DarkOceanTheme.DARK_FOREGROUND);
-		modifiedResourcesMap.put("TableHeader.background", DarkOceanTheme.DARK_PRIMARY3);
-		modifiedResourcesMap.put("Table.foreground",DarkOceanTheme.DARK_FOREGROUND);
-		modifiedResourcesMap.put("Table.selectionForeground",DarkOceanTheme.DARK_FOREGROUND);
+		// the table header background a bit lighter than the panel back ground
+		modifiedResourcesMap.put("TableHeader.background", DarkOceanTheme.DARK_PRIMARY2);
+		// slightly lighter background color for selected table rows
 		modifiedResourcesMap.put("Table.selectionBackground",DarkOceanTheme.DARK_SELECTION_BACKGROUND);
+		// lighter and more readable
 		modifiedResourcesMap.put("ComboBox.disabledForeground", DarkOceanTheme.DARK_MENU_DISABLED_FOREGROUND);
-		modifiedResourcesMap.put("ComboBox.foreground", DarkOceanTheme.DARK_FOREGROUND);
-		modifiedResourcesMap.put("ComboBox.selectionForeground", DarkOceanTheme.DARK_FOREGROUND);
-		modifiedResourcesMap.put("ComboBox.selectionBackground", DarkOceanTheme.DARK_PRIMARY2);
-		modifiedResourcesMap.put("CheckBox.foreground", DarkOceanTheme.DARK_FOREGROUND);
-		modifiedResourcesMap.put("RadioButton.foreground", DarkOceanTheme.DARK_FOREGROUND);
+		// makes the separator (e.g. in menus) more visible
 		modifiedResourcesMap.put("Separator.foreground", DarkOceanTheme.DARK_INACTIVE_CONTROL_TEXT_COLOR);
-		modifiedResourcesMap.put("OptionPane.foreground", DarkOceanTheme.DARK_FOREGROUND);
-		modifiedResourcesMap.put("OptionPane.messageForeground", DarkOceanTheme.DARK_FOREGROUND);
-		modifiedResourcesMap.put("List.selectionForeground", DarkOceanTheme.DARK_FOREGROUND);
-		//modifiedResourcesMap.put("List.selectionBackground",DarkOceanTheme.DARK_PRIMARY2);
+		// slightly lighter background color for selected list rows
+		modifiedResourcesMap.put("List.selectionBackground",DarkOceanTheme.DARK_PRIMARY2);
 		modifiedResourcesMap.put("ProgressBar.selectionForeground", DarkOceanTheme.DARK_FOREGROUND);
-
-		modifiedResourcesMap.put("TextField.inactiveForeground", 
-				DarkOceanTheme.DARK_INACTIVE_CONTROL_TEXT_COLOR);
-		modifiedResourcesMap.put("TextField.inactiveBackground", 
-				DarkOceanTheme.DARK_INACTIVE_TEXT_BACKGROUND);
-		modifiedResourcesMap.put("TextArea.inactiveForeground", 
-				DarkOceanTheme.DARK_INACTIVE_CONTROL_TEXT_COLOR);
-
-		modifiedResourcesMap.put("Button.foreground", DarkOceanTheme.DARK_FOREGROUND);
+		// colors for inactive text field and area
+		modifiedResourcesMap.put("TextField.inactiveForeground", DarkOceanTheme.DARK_INACTIVE_CONTROL_TEXT_COLOR);
+		modifiedResourcesMap.put("TextField.inactiveBackground", DarkOceanTheme.DARK_INACTIVE_TEXT_BACKGROUND);
+		modifiedResourcesMap.put("TextArea.inactiveForeground", DarkOceanTheme.DARK_INACTIVE_CONTROL_TEXT_COLOR);
+        
 		modifiedResourcesMap.put("Tree.line", DarkOceanTheme.DARK_FOREGROUND);//?? doesn't seem to work
 		modifiedResourcesMap.put("Tree.dropLineColor", DarkOceanTheme.DARK_FOREGROUND);//?? doesn't seem to work
+		// this actually changes the tree line color, to make it lighter
+		modifiedResourcesMap.put("Tree.hash", DarkOceanTheme.DARK_FOREGROUND);
+		
+		// make the border more visible
 		modifiedResourcesMap.put("TitledBorder.border", new BorderUIResource.LineBorderUIResource(
 				DarkOceanTheme.DARK_INACTIVE_CONTROL_TEXT_COLOR, 1));
 		modifiedResourcesMap.put("PopupMenu.border", new BorderUIResource.LineBorderUIResource(
 				DarkOceanTheme.DARK_INACTIVE_CONTROL_TEXT_COLOR, 1));
-		modifiedResourcesMap.put("Slider.altTrackColor", DarkOceanTheme.DARK_INACTIVE_CONTROL_TEXT_COLOR);
-		modifiedResourcesMap.put("Tree.foreground", DarkOceanTheme.DARK_FOREGROUND);
-		modifiedResourcesMap.put("Tree.textForeground", DarkOceanTheme.DARK_FOREGROUND);
-		modifiedResourcesMap.put("Tree.selectionForeground", DarkOceanTheme.DARK_FOREGROUND);
-		modifiedResourcesMap.put("Tree.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
 		
+		modifiedResourcesMap.put("Slider.altTrackColor", DarkOceanTheme.DARK_INACTIVE_CONTROL_TEXT_COLOR);
+		// slightly lighter selection backgrounds for some elements, maybe not really necessary
+		modifiedResourcesMap.put("Tree.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
 		modifiedResourcesMap.put("MenuItem.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
-		modifiedResourcesMap.put("Menu.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);		
 		modifiedResourcesMap.put("CheckBoxMenuItem.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
 		modifiedResourcesMap.put("ComboBox.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
-		modifiedResourcesMap.put("EditorPane.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
-		modifiedResourcesMap.put("FormattedTextField.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
-		modifiedResourcesMap.put("PasswordField.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
 		modifiedResourcesMap.put("ProgressBar.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
 		modifiedResourcesMap.put("RadioButtonMenuItem.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
-		modifiedResourcesMap.put("TextPane.selectionBackground", DarkOceanTheme.DARK_SELECTION_BACKGROUND);
-		modifiedResourcesMap.put("List.selectionBackground",DarkOceanTheme.DARK_SELECTION_BACKGROUND);
+		
+		// selected text colors, foreground and background
+		modifiedResourcesMap.put("TextField.selectionBackground", DarkOceanTheme.DARK_TEXT_SELECTION_BACKGROUND);
+		modifiedResourcesMap.put("TextField.selectionForeground", DarkOceanTheme.DARK_BACKGROUND);
+		modifiedResourcesMap.put("EditorPane.selectionBackground", DarkOceanTheme.DARK_TEXT_SELECTION_BACKGROUND);
+		modifiedResourcesMap.put("EditorPane.selectionForeground", DarkOceanTheme.DARK_BACKGROUND);
+		modifiedResourcesMap.put("FormattedTextField.selectionBackground", DarkOceanTheme.DARK_TEXT_SELECTION_BACKGROUND);
+		modifiedResourcesMap.put("FormattedTextField.selectionForeground", DarkOceanTheme.DARK_BACKGROUND);
+		modifiedResourcesMap.put("PasswordField.selectionBackground", DarkOceanTheme.DARK_TEXT_SELECTION_BACKGROUND);
+		modifiedResourcesMap.put("PasswordField.selectionForeground", DarkOceanTheme.DARK_BACKGROUND);
+		modifiedResourcesMap.put("TextPane.selectionBackground", DarkOceanTheme.DARK_TEXT_SELECTION_BACKGROUND);
+		modifiedResourcesMap.put("TextPane.selectionForeground", DarkOceanTheme.DARK_BACKGROUND);
+		modifiedResourcesMap.put("TextArea.selectionBackground", DarkOceanTheme.DARK_TEXT_SELECTION_BACKGROUND);
+		modifiedResourcesMap.put("TextArea.selectionForeground", DarkOceanTheme.DARK_BACKGROUND);
 		
         UIManager.getLookAndFeelDefaults().putAll(modifiedResourcesMap);
-        
+
 	}
 	
 	/**
@@ -266,7 +277,9 @@ public class LaFUtil {
 		private static final ColorUIResource DARK_SECONDARY3 =
 		        new ColorUIResource(0x353535);//53, 53, 53
 	    private static final ColorUIResource DARK_CONTROL_TEXT_COLOR =
-	    		new ColorUIResource(0x353535);//53, 53, 53
+	    		new ColorUIResource(0xd8d8d8);//216, 216, 216
+	    		//new ColorUIResource(0xb6b6b6);//182, 182, 182
+	    		//new ColorUIResource(0x353535);//53, 53, 53
 	    private static final ColorUIResource DARK_INACTIVE_CONTROL_TEXT_COLOR =
                 new ColorUIResource(0x828282);//130,130,130
         private static final ColorUIResource DARK_MENU_DISABLED_FOREGROUND =
@@ -280,6 +293,8 @@ public class LaFUtil {
                 new ColorUIResource(0x464f58);//70, 79, 88
 	    private static final ColorUIResource DARK_ACCELERATOR_COLOR =
                 new ColorUIResource(0xaaafb6);//170, 175, 182
+	    private static final ColorUIResource DARK_TEXT_SELECTION_BACKGROUND =
+                new ColorUIResource(0xd2e9ff);//210, 233, 255
 	    
 	    /**
 	     * Black in a dark theme is actually white/light gray, renamed here

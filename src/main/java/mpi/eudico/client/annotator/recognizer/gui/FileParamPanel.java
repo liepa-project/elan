@@ -40,7 +40,7 @@ public class FileParamPanel extends AbstractParamPanel implements ActionListener
 	
 	private JTextField fileField;
 	private JButton browseButton;	
-	private JComboBox mediaCB;
+	private JComboBox<String> mediaCB;
 	
 	/**
 	 * Creates and configures a new parameter panel.
@@ -137,7 +137,7 @@ public class FileParamPanel extends AbstractParamPanel implements ActionListener
 		GridBagConstraints gbc;
 		
 		if (inputType && (contentType == FileParam.AUDIO || contentType == FileParam.VIDEO)) {
-			mediaCB = new JComboBox();
+			mediaCB = new JComboBox<String>();
 			updateMediaFiles(mediaFiles);
 			
 			gbc = new GridBagConstraints();
@@ -315,24 +315,24 @@ public class FileParamPanel extends AbstractParamPanel implements ActionListener
 			if (mimeTypes.contains(mime)) {
 				return true;
 		    } else {
-		    	for(String type : mimeTypes){
-		    		if(contentType == FileParam.AUDIO){
-		    			if((type.startsWith("audio") && mime.startsWith("audio")) ||
-		    				(type.startsWith("video") && mime.startsWith("video"))){
+		    	for (String type : mimeTypes) {
+		    		if (contentType == FileParam.AUDIO) {
+		    			if ((type.startsWith("audio") && mime.startsWith("audio")) ||
+		    				(type.startsWith("video") && mime.startsWith("video"))) {
 			    			return true;
 			    		}
-		    		}else{
-		    			if(type.startsWith("video") && mime.startsWith("video")){
+		    		} else {
+		    			if (type.startsWith("video") && mime.startsWith("video")) {
 				    		return true;
 				    	}
 		    		}		    		
 		    	}
 		    	
 		    	//if the mimeTypes are invalid (say doesn't start with audio/video)
-		    	if(mime.startsWith("audio") && contentType == FileParam.AUDIO){
+		    	if (mime.startsWith("audio") && contentType == FileParam.AUDIO) {
 	    			//
 	    			return true; 
-	    		} else if(mime.startsWith("video") && contentType == FileParam.VIDEO){
+	    		} else if (mime.startsWith("video") && contentType == FileParam.VIDEO) {
 	    			return true; 
 	    		}
 			}		

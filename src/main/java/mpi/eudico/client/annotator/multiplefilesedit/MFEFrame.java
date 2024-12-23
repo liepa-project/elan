@@ -474,42 +474,44 @@ public class MFEFrame extends JFrame implements ActionListener, ProgressListener
 					for(TierImpl tier:tiers) {
 						MFEModel.Changes change = model.getTierChangeByOriginalName(tier.getName());
 						System.err.println("DEBUG: "+tier.getName()+"."+change);
-						switch(change) {
-						case MODIFIED:
-							TierImpl new_tier = model.getTierByOriginalName(tier.getName());
-							if(new_tier!=null) {
-								tier.setName(new_tier.getName());
-								String annotator = new_tier.getAnnotator();
-								if(!annotator.contains(",")) {
-									tier.setAnnotator(annotator);
-								}
-								String participant = new_tier.getParticipant();
-								if(!participant.contains(",")) {
-									tier.setParticipant(participant);
-								}
-								LinguisticType new_type = new_tier.getLinguisticType();
-								if(!new_type.getLinguisticTypeName().equals(ElanLocale.getString("MFE.Multiple"))) {
-									if(trans.getLinguisticTypeByName(new_type.getLinguisticTypeName())==null) {
-										// type does not exist in this file, add it
-										trans.addLinguisticType(new_type);
+						if (change != null) {
+							switch(change) {
+							case MODIFIED:
+								TierImpl new_tier = model.getTierByOriginalName(tier.getName());
+								if(new_tier!=null) {
+									tier.setName(new_tier.getName());
+									String annotator = new_tier.getAnnotator();
+									if(!annotator.contains(",")) {
+										tier.setAnnotator(annotator);
 									}
-									tier.setLinguisticType(new_type);
+									String participant = new_tier.getParticipant();
+									if(!participant.contains(",")) {
+										tier.setParticipant(participant);
+									}
+									LinguisticType new_type = new_tier.getLinguisticType();
+									if(!new_type.getLinguisticTypeName().equals(ElanLocale.getString("MFE.Multiple"))) {
+										if(trans.getLinguisticTypeByName(new_type.getLinguisticTypeName())==null) {
+											// type does not exist in this file, add it
+											trans.addLinguisticType(new_type);
+										}
+										tier.setLinguisticType(new_type);
+									}
+									String new_lang = new_tier.getLangRef();
+									if (new_lang == null) {
+										tier.setLangRef(null);
+									} else if(!new_lang.contains(",")) {
+										tier.setLangRef(new_lang);
+									}
+									
 								}
-								String new_lang = new_tier.getLangRef();
-								if (new_lang == null) {
-									tier.setLangRef(null);
-								} else if(!new_lang.contains(",")) {
-									tier.setLangRef(new_lang);
-								}
-								
+								break;
+							case REMOVED:
+								toBeRemoved.add(tier);
+								break;
+							case NONE:
+							default:
+								break;
 							}
-							break;
-						case REMOVED:
-							toBeRemoved.add(tier);
-							break;
-						case NONE:
-						default:
-							break;
 						}
 					}
 					for (TierImpl t : toBeRemoved) {

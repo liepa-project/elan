@@ -14,6 +14,7 @@ import mpi.eudico.server.corpora.clom.Transcription;
 import mpi.eudico.server.corpora.clomimpl.abstr.AbstractAnnotation;
 import mpi.eudico.server.corpora.clomimpl.abstr.ExternalReferenceImpl;
 import mpi.eudico.server.corpora.clomimpl.abstr.TierImpl;
+import mpi.eudico.server.corpora.clomimpl.type.Constraint;
 import mpi.eudico.util.ControlledVocabulary;
 import mpi.eudico.util.ExternalCV;
 import mpi.eudico.util.Pair;
@@ -35,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 import static mpi.eudico.client.annotator.util.ClientLogger.LOG;
 
@@ -161,6 +163,7 @@ public class InlineEditBox extends JPanel implements ActionListener,
     private boolean attachable;
     private boolean isUsingControlledVocabulary = false;
     private boolean showCVDescription = true;
+    private boolean suggestCVByParent = false;
 
     // fields for Locale changes
     private JMenu editMenu;
@@ -188,6 +191,7 @@ public class InlineEditBox extends JPanel implements ActionListener,
      * a JList in a scrollpane
      */
     private CVEntryComponent cvEntryComp;
+    private JPanel switchPanel;
     private int minCVWidth = 300;
     private int minCVHeight = 120;
     private int inlineBoxWidth;
@@ -216,6 +220,7 @@ public class InlineEditBox extends JPanel implements ActionListener,
 
     private ArrayList<Object> spellingErrorHighLightInfos;
     private MediaDisplayerHost mediaDisplayerHost;
+    private static final Pattern WORD_PATTERN = Pattern.compile("\\b", Pattern.UNICODE_CHARACTER_CLASS);
     
     static {
     	// initialize spelling checkers before any edit action can occur
@@ -824,7 +829,8 @@ public class InlineEditBox extends JPanel implements ActionListener,
                                             Exception {
                 String langRef = annotation.getTier().getLangRef();
                 SpellChecker checker = SpellCheckerRegistry.getInstance().getSpellChecker(langRef);
-                String[] textElements = textAreaToCheck.getText().split("\\b");
+                //String[] textElements = textAreaToCheck.getText().split("\\b");
+                String[] textElements = WORD_PATTERN.split(textAreaToCheck.getText());
                 Highlighter highlighter = textAreaToCheck.getHighlighter();
 
                 if (spellingErrorPainter == null) {
@@ -1353,6 +1359,11 @@ public class InlineEditBox extends JPanel implements ActionListener,
                 }
             }
         }
+        
+        Boolean suggestChildCVPref = Preferences.getBool("ControlledVocabulary.SuggestByParent", null);
+        if (suggestChildCVPref != null) {
+        	suggestCVByParent = suggestChildCVPref.booleanValue();
+        }
 
         if (preferredComponent == JPanel.class) {
             // configures "this"
@@ -1380,6 +1391,9 @@ public class InlineEditBox extends JPanel implements ActionListener,
                 //cvEntryComp.getEditorComponent().setSize(calulatedSize);
                 removeAll();
                 add(cvEntryComp.getEditorComponent(), BorderLayout.CENTER);
+                add(switchPanel, BorderLayout.NORTH);
+                cvEntryComp.updateCVEntryComponentLocale();
+                
                 if (showCVDescription) {
                     cvEntryComp.updateTableSize(compSize);
                 }
@@ -1920,6 +1934,11 @@ public class InlineEditBox extends JPanel implements ActionListener,
         // changes in the language index
         private int oldLangIndex = -1;
         private String oldCVName = "";
+        
+        private Boolean reloadCV = false;
+        
+        private JButton listButton;
+        private JButton suggestButton;
 
         /**
          * Creates a new entrylist and initializes components.<br> Components are being initialized depending on the type of
@@ -1993,14 +2012,16 @@ public class InlineEditBox extends JPanel implements ActionListener,
 
                 if (annotation != null) {
                     cveId = annotation.getCVEntryId();
-                    for (int i = 0; i < entryTable.getRowCount(); i++) {
-                        SimpleCVEntry entry = (SimpleCVEntry) entryTableModel.getValueAt(i, 0);
-                        String id = entry.getId();
-                        if (cveId.equals(id)) {
-                            entryTable.setRowSelectionInterval(i, i);
-                            scrollIfNeededAutomatically();
-                            break;
-                        }
+                    if (cveId != null) {
+                    	for (int i = 0; i < entryTable.getRowCount(); i++) {
+                    		SimpleCVEntry entry = (SimpleCVEntry) entryTableModel.getValueAt(i, 0);
+                    		String id = entry.getId();
+                    		if (cveId.equals(id)) {
+                    			entryTable.setRowSelectionInterval(i, i);
+                    			scrollIfNeededAutomatically();
+                    			break;
+                    		}
+                    	}
                     }
                 }
             } else {
@@ -2143,6 +2164,21 @@ public class InlineEditBox extends JPanel implements ActionListener,
             entryTable.getColumn("value").setMaxWidth((size.width * firstColPercentage) / 100);
             entryTable.setRowHeight(minCVHeight);
         }
+        
+        /**
+         * updates the cv entry component's popup menu and tab pane labels  
+         */
+        private void updateCVEntryComponentLocale() {
+        	listButton.setText(ElanLocale.getString("InlineEditBox.Toggle.ListPane"));
+        	suggestButton.setText(ElanLocale.getString("InlineEditBox.Toggle.SuggestPane"));
+        	
+        	detachMI.setText(ElanLocale.getString("InlineEditBox.Detach"));
+        	commitMI.setText(ElanLocale.getString("InlineEditBox.Commit"));
+        	cancelMI.setText(ElanLocale.getString("InlineEditBox.Cancel"));
+        	toggleSuggestMI.setText(ElanLocale.getString("InlineEditBox.ToggleSuggestPanel"));
+        	
+        	
+        }
 
         /**
          * Scrolls the current editing row to the center of the table if needed
@@ -2164,6 +2200,18 @@ public class InlineEditBox extends JPanel implements ActionListener,
          * @param component the type of component to use for editing
          */
         private void initComponents(Class<?> component) {
+        	switchPanel = new JPanel(new GridLayout(1, 2, 2, 2));
+        	listButton = new JButton(ElanLocale.getString("InlineEditBox.Toggle.ListPane"));
+        	listButton.addActionListener(this);
+        	listButton.setSelected(true);
+        	
+        	switchPanel.add(listButton);
+        	
+        	suggestButton = new JButton(ElanLocale.getString("InlineEditBox.Toggle.SuggestPane"));
+        	suggestButton.addActionListener(this);
+        	
+        	switchPanel.add(suggestButton);
+        	
             if (showCVDescription) {
                 if (entryTable == null) {
                     entryTableModel = new DefaultTableModel() {
@@ -2554,7 +2602,7 @@ public class InlineEditBox extends JPanel implements ActionListener,
                     langIndex = cv.getDefaultLanguageIndex();
                 }
                 // reload local CVs anyway
-                if (cv != oldCV || !(cv instanceof ExternalCV)) {
+                if (cv != oldCV || !(cv instanceof ExternalCV) || reloadCV == true) {
                     entries = cv.getSimpleEntries(langIndex);
                     //Arrays.sort(entries);
                     if (entryListModel != null) {
@@ -2609,9 +2657,26 @@ public class InlineEditBox extends JPanel implements ActionListener,
          */
         private void fillModel(boolean reload) {
             String cveId = null;
+            String parentValue = "";
+            boolean isChildTier = false;
 
             if (annotation != null) {
                 cveId = annotation.getCVEntryId();
+                
+                TierImpl tier = (TierImpl) annotation.getTier();
+                if(tier.hasParentTier()) {
+                	 if (tier.getLinguisticType().getConstraints().getStereoType() == Constraint.SYMBOLIC_ASSOCIATION) {
+                		 parentValue = tier.getParentTier().getAnnotationAtTime(annotation.getBeginTimeBoundary()).getValue();
+                		 isChildTier = true;
+                		 reloadCV = true;
+                		 reload = true;
+                	 }
+                }
+            }
+            
+            Boolean suggestChildCVPref = Preferences.getBool("ControlledVocabulary.SuggestByParent", null);
+            if (suggestChildCVPref != null) {
+            	suggestCVByParent = suggestChildCVPref.booleanValue();
             }
 
             if (delegate == scrollPane) {
@@ -2619,26 +2684,42 @@ public class InlineEditBox extends JPanel implements ActionListener,
 
                 if (reload) {
                     int nAdded = 0;
-                    for (SimpleCVEntry entry : entries) {
-                        String v = entry.getValue();
-                        if (!v.isEmpty()) {
-                            entryListModel.addElement(entry);
+                   
+                    if(suggestCVByParent && isChildTier) {
+                    	 if (t != null && t.isAlive()) {
+                             Thread tmpT = t;
+                             t = null;
+                             tmpT.interrupt();
+                             try {
+                                 tmpT.join();
+                             } catch (Exception ie) {
+                                 System.out.println(ie);
+                             }
+                         }
+                         t = new Thread(new SuggestionsFinder(parentValue));
+                         t.start();
+                    } else {
+                    	for (SimpleCVEntry entry : entries) {
+                    		String v = entry.getValue();
+                    		if (!v.isEmpty()) {
+                    			entryListModel.addElement(entry);
 
-                            if (cveId != null && cveId.equals(entry.getId())) {
-                                entryList.setSelectedIndex(nAdded);
-                                selected = true;
-                            }
+                    			if (cveId != null && cveId.equals(entry.getId())) {
+                    				entryList.setSelectedIndex(nAdded);
+                    				selected = true;
+                    			}
 
-                            if (v.length() > maxEntryLength) {
-                                maxEntryLength = v.length();
-                            }
+                    			if (v.length() > maxEntryLength) {
+                    				maxEntryLength = v.length();
+                    			}
 
-                            int width = getFontMetrics(this.getEditorComponent().getFont()).stringWidth(v);
-                            if (minCVWidth < width) {
-                                minCVWidth = width;
-                            }
-                            nAdded++;
-                        }
+                    			int width = getFontMetrics(this.getEditorComponent().getFont()).stringWidth(v);
+                    			if (minCVWidth < width) {
+                    				minCVWidth = width;
+                    			}
+                    			nAdded++;
+                    		}
+                    	}
                     }
                 } else {
                     // select the current value
@@ -2666,26 +2747,41 @@ public class InlineEditBox extends JPanel implements ActionListener,
                 boolean selected = false;
 
                 if (reload) {
-                    for (SimpleCVEntry entry : entries) {
-                        String v = entry.getValue();
-                        if (!v.isEmpty()) {
-                            entryBoxModel.addElement(entry);
+                	 if(suggestCVByParent && isChildTier) {
+                    	 if (t != null && t.isAlive()) {
+                             Thread tmpT = t;
+                             t = null;
+                             tmpT.interrupt();
+                             try {
+                                 tmpT.join();
+                             } catch (Exception ie) {
+                                 System.out.println(ie);
+                             }
+                         }
+                         t = new Thread(new SuggestionsFinder(parentValue));
+                         t.start();
+                    } else {
+                    	for (SimpleCVEntry entry : entries) {
+                    		String v = entry.getValue();
+                    		if (!v.isEmpty()) {
+                    			entryBoxModel.addElement(entry);
 
-                            if (cveId != null && cveId.equals(entry.getId())) {
-                                entryBoxModel.setSelectedItem(entry);
-                                selected = true;
-                            }
+                    			if (cveId != null && cveId.equals(entry.getId())) {
+                    				entryBoxModel.setSelectedItem(entry);
+                    				selected = true;
+                    			}
 
-                            if (v.length() > maxEntryLength) {
-                                maxEntryLength = v.length();
-                            }
+                    			if (v.length() > maxEntryLength) {
+                    				maxEntryLength = v.length();
+                    			}
 
-                            int width = getFontMetrics(this.getEditorComponent().getFont()).stringWidth(v);
-                            if (minCVWidth < width) {
-                                minCVWidth = width;
-                            }
-                            selected = true;
-                        }
+                    			int width = getFontMetrics(this.getEditorComponent().getFont()).stringWidth(v);
+                    			if (minCVWidth < width) {
+                    				minCVWidth = width;
+                    			}
+                    			selected = true;
+                    		}
+                    	}
                     }
                 } else {
                     if (cveId != null) {
@@ -2720,29 +2816,44 @@ public class InlineEditBox extends JPanel implements ActionListener,
                 if (reload) {
                     // Remove all rows
                     entryTableModel.setRowCount(0);
-                    int nAdded = 0;
-                    for (SimpleCVEntry entry : entries) {
-                        String v = entry.getValue();
-                        if (!v.isEmpty()) {
-                            entryTableModel.addRow(new Object[] {entry, entry.getDescription()});
-
-                            if (cveId != null && cveId.equals(entry.getId())) {
-                                entryTable.setRowSelectionInterval(nAdded, nAdded);
-                                selected = true;
+                    
+                    if(suggestCVByParent && isChildTier) {
+                   	 if (t != null && t.isAlive()) {
+                            Thread tmpT = t;
+                            t = null;
+                            tmpT.interrupt();
+                            try {
+                                tmpT.join();
+                            } catch (Exception ie) {
+                                System.out.println(ie);
                             }
-
-                            if (v.length() > maxEntryLength) {
-                                maxEntryLength = v.length();
-                            }
-
-                            int width = getFontMetrics(this.getEditorComponent().getFont()).stringWidth(v);
-                            if (minCVWidth < width) {
-                                minCVWidth = width;
-                            }
-                            nAdded++;
                         }
-                    }
+                        t = new Thread(new SuggestionsFinder(parentValue));
+                        t.start();
+                    } else {
+                    	int nAdded = 0;
+                    	for (SimpleCVEntry entry : entries) {
+                    		String v = entry.getValue();
+                    		if (!v.isEmpty()) {
+                    			entryTableModel.addRow(new Object[] {entry, entry.getDescription()});
 
+                    			if (cveId != null && cveId.equals(entry.getId())) {
+                    				entryTable.setRowSelectionInterval(nAdded, nAdded);
+                    				selected = true;
+                    			}
+
+                    			if (v.length() > maxEntryLength) {
+                    				maxEntryLength = v.length();
+                    			}
+
+                    			int width = getFontMetrics(this.getEditorComponent().getFont()).stringWidth(v);
+                    			if (minCVWidth < width) {
+                    				minCVWidth = width;
+                    			}
+                    			nAdded++;
+                    		}
+                    	}
+                    }
                     scrollIfNeededAutomatically();
                 } else {
                     // select the current value
@@ -2900,6 +3011,13 @@ public class InlineEditBox extends JPanel implements ActionListener,
                        && (e.getModifiersEx() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()) != 0) {
                 if (InlineEditBox.this.isAttached()) {
                     toggleSuggestPanel(InlineEditBox.this);
+                    if(listButton.isSelected()) {
+                    	listButton.setSelected(false);
+                		suggestButton.setSelected(true);
+                    }else {
+                    	listButton.setSelected(true);
+                		suggestButton.setSelected(false);
+                    }
                 }
             } else {
                 if (entries != null) {
@@ -2973,6 +3091,25 @@ public class InlineEditBox extends JPanel implements ActionListener,
                 }
             } else if (ae.getSource() == toggleSuggestMI) {
                 toggleSuggestPanel(InlineEditBox.this);
+                if(listButton.isSelected()) {
+                	listButton.setSelected(false);
+            		suggestButton.setSelected(true);
+                }else {
+                	listButton.setSelected(true);
+            		suggestButton.setSelected(false);
+                }
+            } else if (ae.getSource() == listButton) {
+            	if(!listButton.isSelected()) {
+            		toggleSuggestPanel(InlineEditBox.this);
+            		listButton.setSelected(true);
+            		suggestButton.setSelected(false);
+            	}
+            } else if (ae.getSource() == suggestButton) {
+            	if(!suggestButton.isSelected()) {
+            		toggleSuggestPanel(InlineEditBox.this);
+            		listButton.setSelected(false);
+            		suggestButton.setSelected(true);
+            	}
             }
         }
 
@@ -2988,10 +3125,12 @@ public class InlineEditBox extends JPanel implements ActionListener,
                 //System.err.println("DEBUG: delegate == scrollPane");
                 setDelegate(JPanel.class);
                 container.add(getEditorComponent(), BorderLayout.CENTER);
+                container.add(switchPanel, BorderLayout.NORTH);
             } else if (delegate == suggestPanel) {
                 //System.err.println("DEBUG: delegate == suggestPanel");
                 setDelegate(JScrollPane.class);
                 container.add(getEditorComponent(), BorderLayout.CENTER);
+                container.add(switchPanel, BorderLayout.NORTH);
             }
 
             grabFocus();
@@ -3096,6 +3235,7 @@ public class InlineEditBox extends JPanel implements ActionListener,
                 Boolean suggestSearchMethodFlag = false;
                 Boolean suggestSearchInDescFlag = false;
                 Boolean suggestIgnoreCaseFlag = false;
+                Boolean suggestAnyWordsInParent = false;
                 Boolean boolPref = Preferences.getBool("SuggestPanel.EntryContains", null);
                 if (boolPref != null) {
                     suggestSearchMethodFlag = boolPref.booleanValue();
@@ -3109,6 +3249,23 @@ public class InlineEditBox extends JPanel implements ActionListener,
                 if (boolPref != null) {
                     suggestIgnoreCaseFlag = boolPref.booleanValue();
                 }
+                boolPref = Preferences.getBool("ControlledVocabulary.SuggestByAnyWords", null);
+                if(boolPref != null) {
+                	suggestAnyWordsInParent = boolPref.booleanValue();
+                }
+                
+                boolean isChildTier = false;
+
+                if (annotation != null) {
+                    
+                    TierImpl tier = (TierImpl) annotation.getTier();
+                    if(tier.hasParentTier()) {
+                    	 if (tier.getLinguisticType().getConstraints().getStereoType() == Constraint.SYMBOLIC_ASSOCIATION) {
+                    		 isChildTier = true;
+                    	 }
+                    }
+                }
+                
                 if (part != null && !part.equals("")) {
                     int entriesIndex = 0;
                     if (suggestIgnoreCaseFlag) {
@@ -3120,19 +3277,39 @@ public class InlineEditBox extends JPanel implements ActionListener,
                         if (suggestIgnoreCaseFlag) {
                             entryValue = entryValue.toLowerCase(ElanLocale.getLocale());
                         }
-                        if (suggestSearchMethodFlag) {
-                            if (entryValue.contains(part)) {
-                                suggestions.add(next);
-                            } else if (suggestSearchInDescFlag && getDescription(next).contains(part)) {
-                                suggestions.add(next);
+                        if(suggestCVByParent && isChildTier && suggestAnyWordsInParent) {
+                        		part = part.trim();
+                        		String[] words = part.split(" ");
+                        		for(String word : words) {
+                        			if (suggestSearchMethodFlag) {
+                        				if (entryValue.contains(word)) {
+                        					suggestions.add(next);
+                        				} else if (suggestSearchInDescFlag && getDescription(next).contains(word)) {
+                        					suggestions.add(next);
+                        				}
+                        			} else {
+                        				if (entryValue.startsWith(word)) {
+                                			suggestions.add(next);
+                                		} else if (suggestSearchInDescFlag && getDescription(next).startsWith(word)) {
+                                			suggestions.add(next);
+                                		}
+                        			}
+                        		}
+                            }else {
+                            	if (suggestSearchMethodFlag) {
+                            		if (entryValue.contains(part)) {
+                            			suggestions.add(next);
+                            		} else if (suggestSearchInDescFlag && getDescription(next).contains(part)) {
+                            			suggestions.add(next);
+                            		}
+                            	}else {
+                            		if (entryValue.startsWith(part)) {
+                            			suggestions.add(next);
+                            		} else if (suggestSearchInDescFlag && getDescription(next).startsWith(part)) {
+                                		suggestions.add(next);
+                                	}
+                            	}
                             }
-                        } else {
-                            if (entryValue.startsWith(part)) {
-                                suggestions.add(next);
-                            } else if (suggestSearchInDescFlag && getDescription(next).contains(part)) {
-                                suggestions.add(next);
-                            }
-                        }
                         entriesIndex++;
                     }
                     if (!Thread.currentThread().isInterrupted()) {
@@ -3176,11 +3353,30 @@ public class InlineEditBox extends JPanel implements ActionListener,
                 this.suggestions = suggestions;
 
                 if (showCVDescription) {
-                    while (entryTableModel.getRowCount() > 0) {
-                        entryTableModel.removeRow(entryTableModel.getRowCount() - 1);
-                    }
+                	if(entryTableModel != null) {
+                		while (entryTableModel.getRowCount() > 0) {
+                			entryTableModel.removeRow(entryTableModel.getRowCount() - 1);
+                		}
+                	}
                 } else {
-                    suggestEntryListModel.clear();
+                	 if (delegate == scrollPane) {
+                		  if (entryListModel != null) {
+                              entryListModel.clear();
+                          }
+                	}else if (delegate == tableScrollPane) {
+                		if(entryTableModel != null) {
+                			 while (entryTableModel.getRowCount() > 0) {
+                                 entryTableModel.removeRow(entryTableModel.getRowCount() - 1);
+                             }
+                		}
+                	}else if (delegate == box) {
+                		 if (entryBoxModel != null) {
+                             entryBoxModel.removeAllElements();
+                         }
+                	}
+                	else {
+                		suggestEntryListModel.clear();
+                	}
                 }
 
             }
@@ -3189,26 +3385,50 @@ public class InlineEditBox extends JPanel implements ActionListener,
             public void run() {
                 Iterator<SimpleCVEntry> suggestionIterator = suggestions.iterator();
                 int suggestionIndex = 0;
+                String cveId = null;
+                cveId = annotation.getCVEntryId();
                 while (suggestionIterator.hasNext()) {
                     SimpleCVEntry nextSuggestion = suggestionIterator.next();
                     if (showCVDescription) {
-                        entryTableModel.addRow(new Object[] {nextSuggestion, nextSuggestion.getDescription()});
-                        if (nextSuggestion.getValue().equals(oldPartial)) {
-                            entryTable.setRowSelectionInterval(suggestionIndex, suggestionIndex);
-                        }
+                    	if(entryTableModel != null) {
+                    		entryTableModel.addRow(new Object[] {nextSuggestion, nextSuggestion.getDescription()});
+                    		if (nextSuggestion.getValue().equals(oldPartial)) {
+                    			entryTable.setRowSelectionInterval(suggestionIndex, suggestionIndex);
+                    		}
+                    	}
                     } else {
-                        suggestEntryListModel.addElement(nextSuggestion);
-                        if (nextSuggestion.getValue().equals(oldPartial)) {
-                            suggestEntryList.setSelectedIndex(suggestionIndex);
-                            suggestEntryList.ensureIndexIsVisible(suggestionIndex);
-                        }
+                    	 if (delegate == scrollPane) {
+                    		   entryListModel.addElement(nextSuggestion);
+                    		   if (nextSuggestion.getValue().equals(oldPartial)) {
+                    			   entryList.setSelectedIndex(suggestionIndex);
+                    			   entryList.ensureIndexIsVisible(suggestionIndex);
+                               }
+                    	 }else if (delegate == tableScrollPane) {
+                    		  entryTableModel.addRow(new Object[] {nextSuggestion, nextSuggestion.getDescription()});
+                    		  if (nextSuggestion.getValue().equals(oldPartial)) {
+                                  entryTable.setRowSelectionInterval(suggestionIndex, suggestionIndex);
+                              }
+                    	 }else if (delegate == box) {
+                    		  entryBoxModel.addElement(nextSuggestion);
+                    		  if (cveId != null && cveId.equals(nextSuggestion.getId())) {
+                  				entryBoxModel.setSelectedItem(nextSuggestion);
+                  			}
+                    	 }else {
+                    		 	suggestEntryListModel.addElement(nextSuggestion);
+                    		 	if (nextSuggestion.getValue().equals(oldPartial)) {
+                    		 		suggestEntryList.setSelectedIndex(suggestionIndex);
+                    		 		suggestEntryList.ensureIndexIsVisible(suggestionIndex);
+                    		 	}
+                    	 }
                     }
                     suggestionIndex++;
                     //System.out.println("Added to list: " + nextSuggestion);
                 }
 
                 if (showCVDescription) {
-                    scrollIfNeededAutomatically();
+                	if (entryTable != null) {
+                		scrollIfNeededAutomatically();
+                	}
                 }
             }
         }

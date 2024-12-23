@@ -7,6 +7,7 @@ import nl.mpi.recognizer.local.whisper.transcriber.ReaderThread;
 import nl.mpi.recognizer.local.whisper.transcriber.TranscriptionSegmentationStrategy;
 import nl.mpi.recognizer.local.whisper.transcriber.WhisperArguments;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.System.Logger.Level;
 import java.time.LocalDateTime;
@@ -35,6 +36,7 @@ public class WhisperStandaloneRecognizer implements Recognizer {
     private Process recognizerProcess;
     private volatile boolean isRecognizerProcessRunning = false;
     private WhisperArguments whisperArguments;
+    private File baseDir;
 
     public WhisperStandaloneRecognizer() {
         paramMapString = HashMap.newHashMap(10);
@@ -96,7 +98,7 @@ public class WhisperStandaloneRecognizer implements Recognizer {
     public void start() {
         try {
             CommandCreator commandCreator = new CommandCreator();
-            whisperArguments = commandCreator.getWhisperArguments(paramMapString, paramMapFloat);
+            whisperArguments = commandCreator.getWhisperArguments(paramMapString, paramMapFloat, baseDir);
             String[] commands = commandCreator.toCommandLineFormat(whisperArguments);
             logToReport(commands);
 
@@ -152,6 +154,11 @@ public class WhisperStandaloneRecognizer implements Recognizer {
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public void setBaseDir(File baseDir) {
+        this.baseDir = baseDir;
     }
 
     /**

@@ -42,24 +42,47 @@ public interface IGTConstants {
 	public static final float SELECTED_ROW_FACTOR = Constants.DARK_MODE ? 0.3f : 0.7f;
 	/** background color for the selected row and/or the editing row */
 	public final static Color EDIT_BG_COLOR = Constants.DARK_MODE ?
-			new Color(Math.min(255, Constants.DEFAULTBACKGROUNDCOLOR.getRed() - 5),
-					Math.min(255, Constants.DEFAULTBACKGROUNDCOLOR.getGreen() - 5),
+			new Color(Math.max(0, Constants.DEFAULTBACKGROUNDCOLOR.getRed() - 5),
+					Math.max(0, Constants.DEFAULTBACKGROUNDCOLOR.getGreen() - 5),
 					Math.min(255, Constants.DEFAULTBACKGROUNDCOLOR.getBlue() + 45)) :
 						new Color(200, 200, 255);
 
 	/* Some default colors for the IGT viewer */
 	/** color for the border of an annotation's bounding box */
-	public static final Color ANNO_BORDER_COLOR = Color.LIGHT_GRAY;
+	public static final Color ANNO_BORDER_COLOR = Constants.DARK_MODE ? 
+			new Color(Math.min(255, Constants.DEFAULTBACKGROUNDCOLOR.getRed() + 60),
+					Math.min(255, Constants.DEFAULTBACKGROUNDCOLOR.getGreen() + 60),
+					Math.min(255, Constants.DEFAULTBACKGROUNDCOLOR.getBlue() + 60)) : 
+			Color.LIGHT_GRAY;
+	/** color for the border of the active annotation's bounding box */
+	public static final Color ACTIVE_ANNO_BORDER_COLOR = Constants.DARK_MODE ? 
+			Color.CYAN : Color.BLUE;
 	/** color for the background of an annotation's bounding box */
-	public static final Color ANNO_BACKGROUND_COLOR = Constants.DARK_MODE ? Constants.LIGHTBACKGROUNDCOLOR : new Color(255, 255, 245);
+	public static final Color ANNO_BACKGROUND_COLOR = Constants.DARK_MODE ? 
+			Constants.LIGHTBACKGROUNDCOLOR : new Color(255, 255, 245);
+	/** color for the foreground of an annotation, used for the text */
+	public static final Color ANNO_FOREROUND_COLOR = Constants.DEFAULTFOREGROUNDCOLOR;
 	/** first background color of the table the IGT blocks are in (even rows) */
-	public static final Color TABLE_BACKGROUND_COLOR1 = Constants.DARK_MODE ? Constants.DEFAULTBACKGROUNDCOLOR : Color.WHITE;
+	public static final Color TABLE_BACKGROUND_COLOR1 = Constants.DARK_MODE ? 
+			Constants.DEFAULTBACKGROUNDCOLOR : Color.WHITE;
 	/** second background color of the table the IGT blocks are in (odd rows) */
 	public static final Color TABLE_BACKGROUND_COLOR2 = Constants.DARK_MODE ?
 			new Color(Math.min(255, Constants.LIGHTBACKGROUNDCOLOR.getRed() + 20),
 					Math.min(255, Constants.LIGHTBACKGROUNDCOLOR.getGreen() + 20),
 					Math.min(255, Constants.LIGHTBACKGROUNDCOLOR.getBlue() + 20)) :
 			new Color(230, 230, 230);
+	/** background color for the header of suggestions in the suggestion window */
+	public static final Color SUGGESTION_HEADER_BACKGROUND = Constants.DARK_MODE ? 
+			new Color(Math.min(255, Constants.LIGHTBACKGROUNDCOLOR.getRed()),
+					Math.min(255, Constants.LIGHTBACKGROUNDCOLOR.getGreen()),
+					Math.min(255, Constants.LIGHTBACKGROUNDCOLOR.getBlue() + 40)) : 
+			new Color(200, 200, 240);
+	/** background color for the block part of suggestions, the part containing the suggestion values */
+	public static final Color SUGGESTION_BLOCK_BACKGROUND = Constants.DARK_MODE ? 
+			new Color(Math.min(255, Constants.DEFAULTBACKGROUNDCOLOR.getRed()),
+					Math.min(255, Constants.DEFAULTBACKGROUNDCOLOR.getGreen()),
+					Math.min(255, Constants.DEFAULTBACKGROUNDCOLOR.getBlue() + 30)) :
+			new Color(225, 225, 255);
 
 	/** flag for the visibility of the border of an annotation's bounding box */
 	public static final boolean SHOW_ANNOTATION_BORDER = true;

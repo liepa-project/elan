@@ -73,6 +73,9 @@ public class TextAnalyzerHostContext
 	private boolean sugWindowOpened = false;
 	private boolean autoAnalyzeMode = false;
 	private Deque<Pair<TextAnalyzer, Position>> positionQueue;
+	// Allows to automatically detect additional targets for given source-target
+	// configurations. Based on the link of a tier type to a lexicon field 
+	private boolean inferAdditionalTargets = true;
 
 	/**
 	 * Constructor
@@ -237,7 +240,7 @@ public class TextAnalyzerHostContext
 		if (sourcePos == null) {
 			return null;
 		}
-		List<Position> targetPosList = new ArrayList<Position>(2);
+		List<Position> targetPosList = new ArrayList<Position>();
 		for(String targetName : ac.getDest()) {
 			Tier targetTier = transcription.getTierWithId(targetName);
 			Position targetPos = tierToPosition(targetTier);
@@ -249,7 +252,7 @@ public class TextAnalyzerHostContext
 		if (targetPosList.isEmpty()) {
 			return null;
 		}
-
+		
 		SourceTargetConfiguration stConfig = new SourceTargetConfiguration(sourcePos, targetPosList);
 		stConfig.setDocumentId(transcription.getURN().toString());
 
@@ -281,7 +284,7 @@ public class TextAnalyzerHostContext
 
 		return sourceTargetList;
 	}
-
+	
 	/**
 	 * Removes a configuration from an analyzer. This can currently not be used in case of
 	 * removal of a tier.
@@ -832,6 +835,9 @@ public class TextAnalyzerHostContext
 		}
 		if (sugSets != null) {
 			if (sugSets.size() == 1) {
+				if (LOG.isLoggable(Level.FINE)) {
+					LOG.log(Level.FINE, "newAnnotations(): the analyzer returned 1 suggestion, which is applied immediately");
+				}
 				// don't notify the listeners, which would open a suggestion
 				// selection window, but apply the single set
 				SuggestionSet sugSet = sugSets.get(0);
@@ -839,6 +845,11 @@ public class TextAnalyzerHostContext
 				removePositionFromQueue(sugSet);
 				notifyLexanSuggestionSelected(0, sugSet);
 
+				// if inferring of additional targets is selected, update the suggestions
+				if (inferAdditionalTargets) {
+					SuggestionInference.inferAdditionalTargets(transcription, sugSet);
+				}
+				
 				// create annotations via a AnnotationsFromSuggestionSetCommand
 				// Apply the suggestions, and analyze recursively if enabled.
 				annotationsFromSuggestionSet(sugSet);
@@ -905,7 +916,7 @@ public class TextAnalyzerHostContext
 
     @Override
 	public Object prompt(Prompt arg0) {
-		// TODO Auto-generated method stub
+		// method stub
 		return null;
 	}
 
@@ -1191,6 +1202,10 @@ public class TextAnalyzerHostContext
 				removePositionFromQueue(sugSet);
 				notifyLexanSuggestionSelected(row, sugSet);
 
+				// if inferring of additional targets is selected, update the suggestions
+				if (inferAdditionalTargets) {
+					SuggestionInference.inferAdditionalTargets(transcription, sugSet);
+				}
 				// create annotations via a AnnotationsFromSuggestionSetCommand
 				// Apply the suggestions, and analyze recursively if enabled.
 				annotationsFromSuggestionSet(sugSet);
@@ -1198,7 +1213,7 @@ public class TextAnalyzerHostContext
 				analyzeNext();
 			} catch (ArrayIndexOutOfBoundsException abe) {
 				if (LOG.isLoggable(Level.WARNING)) {
-					LOG.log(Level.WARNING, "The row of the selcted suggestion does not exist: " + row);
+					LOG.log(Level.WARNING, "The row of the selected suggestion does not exist: " + row);
 				}
 			}
 		}
