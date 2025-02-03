@@ -4,6 +4,7 @@ import mpi.eudico.client.annotator.recognizer.api.RecognizerHost;
 import mpi.eudico.client.annotator.recognizer.data.RSelection;
 import nl.mpi.recognizer.local.whisper.WhisperStandaloneRecognizer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -55,7 +56,7 @@ class TranscriptionSegmentationStrategyTest {
         assertEquals(clazz, TranscriptionSegmentationStrategy.getStrategy(recognizer).getClass());
     }
 
-    @ParameterizedTest
+    @ParameterizedTest @Disabled //requires whisper
     @MethodSource("nl.mpi.recognizer.local.whisper.transcriber.TranscriptionSegmentationStrategyTestDataProvider#provideDataForTestExtractData")
     void testExtractData(String path, Optional<URI> outDirPath, String segType, int numMessageLogging, int numberOfSegments) throws IOException {
         when(whisperArguments.wordTimestamps()).thenReturn(Optional.of("words".equals(segType)));
