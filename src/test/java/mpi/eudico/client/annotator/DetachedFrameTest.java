@@ -9,6 +9,7 @@ import org.mockito.MockitoAnnotations;
 
 import javax.swing.*;
 
+@Disabled //Requires X11 and cannot run in headless mode
 class DetachedFrameTest {
 
     @Mock
