@@ -53,7 +53,7 @@ public class CommandCreatorTestDataProvider {
 
     public static Stream<Arguments> provideParamsForToCommandLineFormat() throws URISyntaxException {
         return Stream.of(
-            Arguments.of(new CommandCreator().getWhisperArguments(getStringStringMap(), getStringFloatMap(), new File("/Users/hafreh/elan_extensions/whisper-standalone")), new String[]{
+            Arguments.of(new CommandCreator().getWhisperArguments(getStringStringMap(), getStringFloatMap(), new File(System.getProperty("user.home")+"/elan_extensions/whisper-standalone")), new String[]{
                 USER_HOME + "/elan_extensions/whisper-standalone/whisper_standalone202403141150",
                 "a202403141151.mp4",
                 "--model=base",

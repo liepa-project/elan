@@ -43,7 +43,7 @@ class DirectoryPathTest {
     @EnabledOnOs({OS.LINUX})
     @Test
     void testGetOsNameLinux() {
-        assertTrue(new DirectoryPath().getOsName().toLowerCase().contains("ubuntu"));
+        assertTrue(new DirectoryPath().getOsName().toLowerCase().contains("linux"));// tested on Ubuntu 24.04.1 LTS. openjdk 21.0.5
     }
 
     @EnabledOnOs({OS.WINDOWS})
