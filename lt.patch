@@ -1,0 +1,296 @@
+Only in ./.git: COMMIT_EDITMSG
+diff -r ./.git/config /tmp/elan/elan/.git/config
+11a12,14
+> [branch "6.8-liepa3"]
+> 	remote = origin
+> 	merge = refs/heads/6.8-liepa3
+Only in ./.git: FETCH_HEAD
+diff -r ./.git/HEAD /tmp/elan/elan/.git/HEAD
+1c1
+< 38a1dc7539f8fb28a99844afc2c378dbc8f21453
+---
+> ref: refs/heads/6.8-liepa3
+Binary files ./.git/index and /tmp/elan/elan/.git/index differ
+diff -r ./.git/logs/HEAD /tmp/elan/elan/.git/logs/HEAD
+1,6c1,2
+< 0000000000000000000000000000000000000000 38a1dc7539f8fb28a99844afc2c378dbc8f21453 mondhs <mondhs@mondhs-liepa.(none)> 1732651308 +0200	clone: from github.com:liepa-project/elan.git
+< 38a1dc7539f8fb28a99844afc2c378dbc8f21453 9939fb91e5c429e91795238bac1e41feb62d330b Mondhs Bus <mondhs@gmail.com> 1734936624 +0200	commit: ELAN 6.9
+< 9939fb91e5c429e91795238bac1e41feb62d330b 6d350fc12b885689ff649c97f4d9b3d3bcf83010 Mondhs Bus <mondhs@gmail.com> 1734936703 +0200	commit: ELAN 6.9 missing files
+< 6d350fc12b885689ff649c97f4d9b3d3bcf83010 6d350fc12b885689ff649c97f4d9b3d3bcf83010 Mondhs Bus <mondhs@gmail.com> 1734937049 +0200	checkout: moving from master to master
+< 6d350fc12b885689ff649c97f4d9b3d3bcf83010 6d350fc12b885689ff649c97f4d9b3d3bcf83010 Mondhs Bus <mondhs@gmail.com> 1734937100 +0200	checkout: moving from master to 6.9-liepa3
+< 6d350fc12b885689ff649c97f4d9b3d3bcf83010 38a1dc7539f8fb28a99844afc2c378dbc8f21453 Mondhs Bus <mondhs@gmail.com> 1734937213 +0200	checkout: moving from 6.9-liepa3 to release-6.8
+---
+> 0000000000000000000000000000000000000000 6d350fc12b885689ff649c97f4d9b3d3bcf83010 Mondhs Bus <mondhs@gmail.com> 1734937156 +0200	clone: from github.com:liepa-project/elan.git
+> 6d350fc12b885689ff649c97f4d9b3d3bcf83010 64305e8f089c7382764a6d7fc9e3167506e1d53b Mondhs Bus <mondhs@gmail.com> 1734937184 +0200	checkout: moving from master to 6.8-liepa3
+Only in /tmp/elan/elan/.git/logs/refs/heads: 6.8-liepa3
+Only in ./.git/logs/refs/heads: 6.9-liepa3
+diff -r ./.git/logs/refs/heads/master /tmp/elan/elan/.git/logs/refs/heads/master
+1,3c1
+< 0000000000000000000000000000000000000000 38a1dc7539f8fb28a99844afc2c378dbc8f21453 mondhs <mondhs@mondhs-liepa.(none)> 1732651308 +0200	clone: from github.com:liepa-project/elan.git
+< 38a1dc7539f8fb28a99844afc2c378dbc8f21453 9939fb91e5c429e91795238bac1e41feb62d330b Mondhs Bus <mondhs@gmail.com> 1734936624 +0200	commit: ELAN 6.9
+< 9939fb91e5c429e91795238bac1e41feb62d330b 6d350fc12b885689ff649c97f4d9b3d3bcf83010 Mondhs Bus <mondhs@gmail.com> 1734936703 +0200	commit: ELAN 6.9 missing files
+---
+> 0000000000000000000000000000000000000000 6d350fc12b885689ff649c97f4d9b3d3bcf83010 Mondhs Bus <mondhs@gmail.com> 1734937156 +0200	clone: from github.com:liepa-project/elan.git
+diff -r ./.git/logs/refs/remotes/origin/HEAD /tmp/elan/elan/.git/logs/refs/remotes/origin/HEAD
+1c1
+< 0000000000000000000000000000000000000000 38a1dc7539f8fb28a99844afc2c378dbc8f21453 mondhs <mondhs@mondhs-liepa.(none)> 1732651308 +0200	clone: from github.com:liepa-project/elan.git
+---
+> 0000000000000000000000000000000000000000 6d350fc12b885689ff649c97f4d9b3d3bcf83010 Mondhs Bus <mondhs@gmail.com> 1734937156 +0200	clone: from github.com:liepa-project/elan.git
+Only in ./.git/logs/refs/remotes/origin: master
+Only in ./.git/objects: 00
+Only in ./.git/objects: 02
+Only in ./.git/objects: 03
+Only in ./.git/objects: 04
+Only in ./.git/objects: 05
+Only in ./.git/objects: 08
+Only in ./.git/objects: 09
+Only in ./.git/objects: 0a
+Only in ./.git/objects: 0b
+Only in ./.git/objects: 0d
+Only in ./.git/objects: 0e
+Only in ./.git/objects: 0f
+Only in ./.git/objects: 10
+Only in ./.git/objects: 11
+Only in ./.git/objects: 12
+Only in ./.git/objects: 13
+Only in ./.git/objects: 14
+Only in ./.git/objects: 16
+Only in ./.git/objects: 17
+Only in ./.git/objects: 19
+Only in ./.git/objects: 1a
+Only in ./.git/objects: 1b
+Only in ./.git/objects: 1c
+Only in ./.git/objects: 1d
+Only in ./.git/objects: 1e
+Only in ./.git/objects: 20
+Only in ./.git/objects: 21
+Only in ./.git/objects: 22
+Only in ./.git/objects: 23
+Only in ./.git/objects: 24
+Only in ./.git/objects: 25
+Only in ./.git/objects: 29
+Only in ./.git/objects: 2d
+Only in ./.git/objects: 2f
+Only in ./.git/objects: 30
+Only in ./.git/objects: 33
+Only in ./.git/objects: 34
+Only in ./.git/objects: 36
+Only in ./.git/objects: 39
+Only in ./.git/objects: 3a
+Only in ./.git/objects: 3c
+Only in ./.git/objects: 3d
+Only in ./.git/objects: 3e
+Only in ./.git/objects: 40
+Only in ./.git/objects: 41
+Only in ./.git/objects: 42
+Only in ./.git/objects: 46
+Only in ./.git/objects: 47
+Only in ./.git/objects: 48
+Only in ./.git/objects: 49
+Only in ./.git/objects: 4b
+Only in ./.git/objects: 4c
+Only in ./.git/objects: 4d
+Only in ./.git/objects: 4f
+Only in ./.git/objects: 52
+Only in ./.git/objects: 53
+Only in ./.git/objects: 55
+Only in ./.git/objects: 58
+Only in ./.git/objects: 5c
+Only in ./.git/objects: 5d
+Only in ./.git/objects: 5e
+Only in ./.git/objects: 5f
+Only in ./.git/objects: 60
+Only in ./.git/objects: 61
+Only in ./.git/objects: 63
+Only in ./.git/objects: 64
+Only in ./.git/objects: 65
+Only in ./.git/objects: 67
+Only in ./.git/objects: 68
+Only in ./.git/objects: 69
+Only in ./.git/objects: 6b
+Only in ./.git/objects: 6c
+Only in ./.git/objects: 6d
+Only in ./.git/objects: 6e
+Only in ./.git/objects: 6f
+Only in ./.git/objects: 70
+Only in ./.git/objects: 72
+Only in ./.git/objects: 75
+Only in ./.git/objects: 76
+Only in ./.git/objects: 77
+Only in ./.git/objects: 7a
+Only in ./.git/objects: 7b
+Only in ./.git/objects: 7c
+Only in ./.git/objects: 7d
+Only in ./.git/objects: 7e
+Only in ./.git/objects: 80
+Only in ./.git/objects: 84
+Only in ./.git/objects: 85
+Only in ./.git/objects: 86
+Only in ./.git/objects: 88
+Only in ./.git/objects: 89
+Only in ./.git/objects: 8a
+Only in ./.git/objects: 8b
+Only in ./.git/objects: 8c
+Only in ./.git/objects: 8d
+Only in ./.git/objects: 90
+Only in ./.git/objects: 91
+Only in ./.git/objects: 92
+Only in ./.git/objects: 94
+Only in ./.git/objects: 97
+Only in ./.git/objects: 98
+Only in ./.git/objects: 99
+Only in ./.git/objects: 9b
+Only in ./.git/objects: 9c
+Only in ./.git/objects: 9d
+Only in ./.git/objects: 9e
+Only in ./.git/objects: 9f
+Only in ./.git/objects: a1
+Only in ./.git/objects: a4
+Only in ./.git/objects: a5
+Only in ./.git/objects: a6
+Only in ./.git/objects: a7
+Only in ./.git/objects: a8
+Only in ./.git/objects: aa
+Only in ./.git/objects: ab
+Only in ./.git/objects: ac
+Only in ./.git/objects: ae
+Only in ./.git/objects: b1
+Only in ./.git/objects: b3
+Only in ./.git/objects: b4
+Only in ./.git/objects: b5
+Only in ./.git/objects: b6
+Only in ./.git/objects: b9
+Only in ./.git/objects: ba
+Only in ./.git/objects: bb
+Only in ./.git/objects: bc
+Only in ./.git/objects: bd
+Only in ./.git/objects: bf
+Only in ./.git/objects: c2
+Only in ./.git/objects: c3
+Only in ./.git/objects: c4
+Only in ./.git/objects: c5
+Only in ./.git/objects: c7
+Only in ./.git/objects: c8
+Only in ./.git/objects: ca
+Only in ./.git/objects: cc
+Only in ./.git/objects: cd
+Only in ./.git/objects: ce
+Only in ./.git/objects: cf
+Only in ./.git/objects: d0
+Only in ./.git/objects: d1
+Only in ./.git/objects: d2
+Only in ./.git/objects: d3
+Only in ./.git/objects: d4
+Only in ./.git/objects: db
+Only in ./.git/objects: dc
+Only in ./.git/objects: dd
+Only in ./.git/objects: de
+Only in ./.git/objects: df
+Only in ./.git/objects: e0
+Only in ./.git/objects: e1
+Only in ./.git/objects: e2
+Only in ./.git/objects: e3
+Only in ./.git/objects: e5
+Only in ./.git/objects: e7
+Only in ./.git/objects: e8
+Only in ./.git/objects: e9
+Only in ./.git/objects: ea
+Only in ./.git/objects: eb
+Only in ./.git/objects: ec
+Only in ./.git/objects: ed
+Only in ./.git/objects: ee
+Only in ./.git/objects: ef
+Only in ./.git/objects: f0
+Only in ./.git/objects: f2
+Only in ./.git/objects: f4
+Only in ./.git/objects: f6
+Only in ./.git/objects: f7
+Only in ./.git/objects: f8
+Only in ./.git/objects: fa
+Only in ./.git/objects: fd
+Only in ./.git/objects: fe
+Only in ./.git/objects: ff
+Only in /tmp/elan/elan/.git/objects/pack: pack-d248eb13b589e928593c428c10f62adeafe4f0a5.idx
+Only in /tmp/elan/elan/.git/objects/pack: pack-d248eb13b589e928593c428c10f62adeafe4f0a5.pack
+Only in /tmp/elan/elan/.git/objects/pack: pack-d248eb13b589e928593c428c10f62adeafe4f0a5.rev
+Only in ./.git/objects/pack: pack-ebf5654b7860a9c47e8fd6b0d86f30b87e22f08d.idx
+Only in ./.git/objects/pack: pack-ebf5654b7860a9c47e8fd6b0d86f30b87e22f08d.pack
+Only in ./.git/objects/pack: pack-ebf5654b7860a9c47e8fd6b0d86f30b87e22f08d.rev
+Only in ./.git: ORIG_HEAD
+diff -r ./.git/packed-refs /tmp/elan/elan/.git/packed-refs
+3c3
+< 38a1dc7539f8fb28a99844afc2c378dbc8f21453 refs/remotes/origin/master
+---
+> 6d350fc12b885689ff649c97f4d9b3d3bcf83010 refs/remotes/origin/master
+5a6
+> 6d350fc12b885689ff649c97f4d9b3d3bcf83010 refs/tags/release-6.9
+Only in /tmp/elan/elan/.git/refs/heads: 6.8-liepa3
+Only in ./.git/refs/heads: 6.9-liepa3
+Only in ./.git/refs/remotes/origin: master
+Only in ./.git/refs/tags: release-6.9
+Only in /tmp/elan/elan: .github
+Only in .: lt.patch
+diff -r ./pom.xml /tmp/elan/elan/pom.xml
+386a387,412
+>             <!-- [[[[ Added by MG to create executable jar -->
+>             <plugin>
+>                 <groupId>org.apache.maven.plugins</groupId>
+>                 <artifactId>maven-assembly-plugin</artifactId>
+>                 <executions>
+>                     <execution>
+>                         <phase>package</phase>
+>                         <goals>
+>                             <goal>single</goal>
+>                         </goals>
+>                         <configuration>
+>                             <archive>
+>                             <manifest>
+>                                 <mainClass>
+>                                 mpi.eudico.client.annotator.ELAN
+>                                 </mainClass>
+>                             </manifest>
+>                             </archive>
+>                             <descriptorRefs>
+>                                 <descriptorRef>jar-with-dependencies</descriptorRef>
+>                             </descriptorRefs>
+>                         </configuration>
+>                     </execution>
+>                 </executions>
+>             </plugin>
+>             <!--  Added by MG to create executable jar ]]]] -->
+diff -r ./src/main/java/mpi/eudico/client/annotator/commands/ELANCommandFactory.java /tmp/elan/elan/src/main/java/mpi/eudico/client/annotator/commands/ELANCommandFactory.java
+910a911,914
+>      * constant for language lituanian
+>      */
+>     public static final String LITHUANIAN = "Lietuvi\u0161kai";
+>     /**
+1663a1668
+>         languages.put(LITHUANIAN, ElanLocale.LITHUANIAN);
+diff -r ./src/main/java/mpi/eudico/client/annotator/ElanFrame2.java /tmp/elan/elan/src/main/java/mpi/eudico/client/annotator/ElanFrame2.java
+2083a2084,2088
+>         ma = new SetLocaleMA(ELANCommandFactory.LITHUANIAN, this, ElanLocale.LITHUANIAN);
+>         langRBMI = new JRadioButtonMenuItem(ma);
+>         languageBG.add(langRBMI);
+>         menuAppLanguage.add(langRBMI);
+>         
+diff -r ./src/main/java/mpi/eudico/client/annotator/ElanLocale.java /tmp/elan/elan/src/main/java/mpi/eudico/client/annotator/ElanLocale.java
+44a45,47
+> 	/** constant for Lithunian */
+> 	public static final Locale LITHUANIAN = new Locale("lt", "LT");
+> 
+diff -r ./src/main/java/mpi/eudico/client/annotator/gui/InlineEditBox.java /tmp/elan/elan/src/main/java/mpi/eudico/client/annotator/gui/InlineEditBox.java
+827c827
+<                 String[] textElements = textAreaToCheck.getText().split("\\b");
+---
+>                 String[] textElements = textAreaToCheck.getText().split("(?<=[\s,.:;\"\']|^)");
+diff -r ./src/main/java/mpi/eudico/client/im/ImUtil.java /tmp/elan/elan/src/main/java/mpi/eudico/client/im/ImUtil.java
+99a100,101
+> 	/** a locale for Lithuanian */
+> 	public static final Locale LITHUANIAN = new Locale("lt", "", "Standard");
+151c153,154
+< 			ImUtil.TURKISH
+---
+> 			ImUtil.TURKISH,
+> 			ImUtil.LITHUANIAN
+Only in /tmp/elan/elan/src/main/resources/mpi/eudico/client/annotator/resources: ElanLanguage_lt.properties
+Only in ./src/main/resources: nl
