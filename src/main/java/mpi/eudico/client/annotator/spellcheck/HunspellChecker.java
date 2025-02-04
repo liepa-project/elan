@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import mpi.eudico.client.annotator.spellcheck.SpellCheckerFactory.SpellCheckerType;
 import mpi.eudico.util.Pair;
@@ -27,7 +26,6 @@ public class HunspellChecker implements SpellChecker {
 	private String description = "A spellchecker that uses localy installed Hunspell dictionaries. See also http://hunspell.github.io/";
 	
 	private SpellCheckerType type = SpellCheckerType.HUNSPELL;
-	private static final Pattern WORD_PATTERN = Pattern.compile("\\b", Pattern.UNICODE_CHARACTER_CLASS);
 	private String filePath;
 	
 	private Hunspell dict;
@@ -149,7 +147,7 @@ public class HunspellChecker implements SpellChecker {
 		List<Pair<String, List<String>>> suggestions = new ArrayList<Pair<String, List<String>>>();
 		
 		// Simple split on one or more spaces
-		String[] words = WORD_PATTERN.split(text);
+		String[] words = text.split("\\s+");
 		
 		for(int i = 0; i < words.length; i++) {
 			String word = words[i];
