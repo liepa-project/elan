@@ -45,10 +45,10 @@ public class ELAN {
 
     /** the micro (bug fix) version value
      *  No longer used as of ELAN 5.0, Oct 2017 */
-    public static final int micro = 0;
+    public static final int micro = 2;
     
     /** a string version suffix, e.g. alpha or beta or whatever */
-    public static final String versionSuffix = "";
+    public static final String versionSuffix = "liepa3";
     
     /** application name constant */
     public static final String appName = "ELAN";
@@ -548,7 +548,7 @@ public class ELAN {
      * @return the current version
      */
     public static String getVersionString() {
-    	return major + "." + minor + versionSuffix;
+    	return major + "." + minor + "." + micro + "-" + versionSuffix;
         //return major + "." + minor + "." + micro + versionSuffix;
     }
     
