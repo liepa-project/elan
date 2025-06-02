@@ -31,6 +31,9 @@ jobs:
       run: |
         mvn -v
         mvn -B package --file pom.xml -Dexec.phase=install
+        mkdir -p ./target/jpackage-input
+        cp elan-6.9.jar ./target/jpackage-input
+        cp -r ./target/lib ./target/jpackage-input/lib
         jpackage --verbose "@jpackage.cfg" "@jpackage-linux-deb.cfg"
 
 
