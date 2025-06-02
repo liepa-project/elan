@@ -67,7 +67,7 @@ jobs:
       name: Build distribution
       run: |
         mvn -v
-        mvn -B package --file pom.xml -Dexec.phase=install
+        mvn -B package --file pom.xml -D"exec.phase=install"
         mkdir -p ./target/jpackage-input
         cp target/elan-6.9.jar ./target/jpackage-input
         cp -r ./target/lib ./target/jpackage-input/lib
