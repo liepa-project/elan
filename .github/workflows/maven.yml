@@ -74,6 +74,7 @@ jobs:
         cp target/elan-6.9.jar ./target/jpackage-input
         cp -r ./target/lib ./target/jpackage-input/lib
         jpackage --verbose "@jpackage.cfg" "@jpackage-win.cfg"
+        jpackage --verbose "@jpackage.cfg" "@jpackage-win-appimage.cfg"
 
 # SAVE INSTALLER
     - id: upload-installer
