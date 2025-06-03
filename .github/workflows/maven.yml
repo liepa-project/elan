@@ -85,3 +85,12 @@ jobs:
         name: windows-installer
         retention-days: 1
 
+
+    - id: upload-win-appimage
+      name: Upload AppImage
+      uses: actions/upload-artifact@v4
+      with:
+        path: target/jpackage-output-win
+        name: windows-appimage
+        retention-days: 1
+
