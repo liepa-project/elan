@@ -35,6 +35,7 @@ jobs:
         cp target/elan-6.9.jar ./target/jpackage-input
         cp -r ./target/lib ./target/jpackage-input/lib
         jpackage --verbose "@jpackage.cfg" "@jpackage-linux-deb.cfg"
+        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-appimage.cfg"
 
 
     # SAVE INSTALLER
@@ -44,6 +45,14 @@ jobs:
       with:
         path: target/elan_6.9.2003_amd64.deb
         name: linux-installer
+        retention-days: 1
+
+    - id: upload-linux-appimage
+      name: Upload Linux AppImage
+      uses: actions/upload-artifact@v4
+      with:
+        path: target/jpackage-output-linux
+        name: linux-app-image
         retention-days: 1
 
   build-windows-installer:
