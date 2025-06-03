@@ -80,7 +80,7 @@ jobs:
       name: Upload installer
       uses: actions/upload-artifact@v4
       with:
-        path: target\elan_6.9.2003.msi
+        path: target/ELAN-6.9.2003.msi
         name: windows-installer
         retention-days: 1
 
