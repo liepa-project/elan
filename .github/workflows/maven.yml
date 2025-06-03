@@ -123,12 +123,12 @@ jobs:
       with:
         name: windows-installer
 
-    - id: rename-downloaded-files
-      name: Rename downloaded files
-      run: |
-        ls -alR
-        mv elan_6.9.2003_amd64.deb elan_6.9.2003_amd64.deb
-        ls -alR
+    #- id: rename-downloaded-files
+    #  name: Rename downloaded files
+    #  run: |
+    #    ls -alR
+    #    mv elan_6.9.2003_amd64.deb elan_6.9.2003_amd64.deb
+    #    ls -alR
 
 # CREATE GITHUB RELEASE AND ADD ASSETS
     - id: tag
