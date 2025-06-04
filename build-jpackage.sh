@@ -13,6 +13,8 @@ VENDOR="Šnekanti Liepa"
 # Set the application description
 DESCRIPTION="ELAN sulietuvinimas"
 
+APP_VERSION=6.9.2-liepa3
+
 # --- Paths ---
 # Get the directory where the script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
@@ -74,11 +76,13 @@ mkdir -p "${JPACKAGE_OUTPUT_DIR}"
 "${JPACKAGE_EXE}" \
   --input "${JPACKAGE_INPUT_DIR}" \
   --name "${APP_NAME}" \
+  --app-version ${APP_VERSION}\
   --main-jar "$(basename "${JAR_FILE}")" \
   --main-class "${MAIN_CLASS}" \
   --type app-image \
   --vendor "${VENDOR}" \
   --description "${DESCRIPTION}" \
+  --copyright "Copyright (C) 2005-2024, The Max Planck Institute for Psycholinguistic" \
   --dest "${JPACKAGE_OUTPUT_DIR}-linux" \
   --module-path "${JAVA_HOME}/jmods" \
   --add-modules java.desktop,java.logging \
