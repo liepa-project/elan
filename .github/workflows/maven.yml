@@ -129,8 +129,8 @@ jobs:
       with:
         name: windows-installer
         
-   - id: zip-linux-appimage 
-     run: zip -qq -r ELAN-6.9.2003.linux.zip ELAN
+    - id: zip-linux-appimage 
+      run: zip -qq -r ELAN-6.9.2003.linux.zip ELAN
 
     - id: list-downloaded-files
       run: ls -l
