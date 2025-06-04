@@ -35,7 +35,7 @@ jobs:
         cp target/elan-6.9.jar ./target/jpackage-input
         cp -r ./target/lib ./target/jpackage-input/lib
         jpackage --verbose "@jpackage.cfg" "@jpackage-linux-deb.cfg"
-        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-appimage.cfg"
+        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-app-image.cfg"
 
 
     # SAVE INSTALLER
@@ -47,7 +47,7 @@ jobs:
         name: linux-installer
         retention-days: 1
 
-    - id: upload-linux-appimage
+    - id: upload-linux-app-image
       name: Upload Linux AppImage
       uses: actions/upload-artifact@v4
       with:
@@ -117,11 +117,11 @@ jobs:
       with:
         name: linux-installer
         
-    - id: download-linux-appimage
+    - id: download-linux-app-image
       name: Download Linux AppImage
       uses: actions/download-artifact@v4
       with:
-        name: linux-appimage
+        name: linux-app-image
 
     - id: download-windows-installer
       name: Download Windows installer
@@ -178,7 +178,7 @@ jobs:
         asset_name: ELAN-6.9.2003.msi
         asset_content_type: application/x-binary
         
-    - id: release-linux-appimage
+    - id: release-linux-app-image
       name: Release Linux AppImage
       uses: actions/upload-release-asset@latest
       env:
