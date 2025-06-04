@@ -128,9 +128,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: windows-installer
+        
+   - id: zip-linux-appimage 
+     run: zip -qq -r ELAN-6.9.2003.linux.zip ELAN
 
     - id: list-downloaded-files
-      run: ls -R
+      run: ls -l
 
     #- id: rename-downloaded-files
     #  name: Rename downloaded files
@@ -143,7 +146,7 @@ jobs:
     - id: tag
       name: Move latest-release tag
       shell: bash
-      if: true
+      if: false
       run: |
         # Move tag
         git tag -d latest-release
