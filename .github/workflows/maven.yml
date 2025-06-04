@@ -129,6 +129,9 @@ jobs:
       with:
         name: windows-installer
 
+    - id: list-downloaded-files
+      run: ls -R
+
     #- id: rename-downloaded-files
     #  name: Rename downloaded files
     #  run: |
@@ -140,7 +143,7 @@ jobs:
     - id: tag
       name: Move latest-release tag
       shell: bash
-      if: false
+      if: true
       run: |
         # Move tag
         git tag -d latest-release
