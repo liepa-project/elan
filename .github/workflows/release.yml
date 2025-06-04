@@ -1,0 +1,189 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Elan CI 
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'release-liepa3-*.*.*'
+
+jobs:
+  build-linux-installer:
+
+    runs-on: ubuntu-latest
+    name: Build Installer on Linux
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    - name: Build with Maven
+      run: |
+        mvn -v
+        mvn -B package --file pom.xml -Dexec.phase=install
+        mkdir -p ./target/jpackage-input
+        cp target/elan-6.9.jar ./target/jpackage-input
+        cp -r ./target/lib ./target/jpackage-input/lib
+        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-deb.cfg"
+        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-appimage.cfg"
+
+
+    # SAVE INSTALLER
+    - id: upload-installer
+      name: Upload installer
+      uses: actions/upload-artifact@v4
+      with:
+        path: target/elan_latest_amd64.deb
+        name: linux-installer
+        retention-days: 1
+
+    - id: upload-linux-appimage
+      name: Upload Linux AppImage
+      uses: actions/upload-artifact@v4
+      with:
+        path: target/jpackage-output-linux
+        name: linux-appimage
+        retention-days: 1
+
+  build-windows-installer:
+    name: Build Installer on Windows
+    runs-on: windows-latest
+    steps:
+
+# SETUP BUILD ENVIRONMENT
+    - id: checkout-code
+      name: Checkout code
+      uses: actions/checkout@v3
+    - id: setup-jdk
+      name: Setup JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: 21
+
+# BUILD FOR DISTRIBUTION
+    - id: build
+      name: Build distribution
+      run: |
+        pwd
+        echo %cd%
+        mvn -v
+        mvn -B package --file pom.xml -D"exec.phase=install" -D"maven.test.skip"
+        mkdir -p ./target/jpackage-input
+        cp target/elan-6.9.jar ./target/jpackage-input
+        cp -r ./target/lib ./target/jpackage-input/lib
+        jpackage --verbose "@jpackage.cfg" "@jpackage-win.cfg"
+        jpackage --verbose "@jpackage.cfg" "@jpackage-win-appimage.cfg"
+
+# SAVE INSTALLER
+    - id: upload-installer
+      name: Upload installer
+      uses: actions/upload-artifact@v4
+      with:
+        path: target/ELAN-latest.msi
+        name: windows-installer
+        retention-days: 1
+
+
+    - id: upload-win-appimage
+      name: Upload AppImage
+      uses: actions/upload-artifact@v4
+      with:
+        path: target/jpackage-output-win
+        name: windows-appimage
+        retention-days: 1
+
+
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-linux-installer, build-windows-installer]
+    steps:
+
+     #DOWNLOAD INSTALLERS
+    - id: download-linux-installer
+      name: Download Linux installer
+      uses: actions/download-artifact@v4
+      with:
+        name: linux-installer
+        
+    - id: download-linux-appimage
+      name: Download Linux AppImage
+      uses: actions/download-artifact@v4
+      with:
+        name: linux-appimage
+
+    - id: download-windows-installer
+      name: Download Windows installer
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-installer
+        
+    - id: zip-linux-appimage 
+      run: zip -qq -r ELAN-latest.linux.zip ELAN
+
+    - id: list-downloaded-files
+      run: ls -l
+
+# CREATE GITHUB RELEASE AND ADD ASSETS
+    - id: tag
+      name: Move latest-release tag
+      shell: bash
+      if: false
+      run: |
+        # Move tag
+        git tag -d latest-release
+        git push --delete origin latest-release
+        git tag -a latest-release -m "Latest of a Release"
+        git push --follow-tags
+    - id: create-release
+      name: Create GitHub release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: true
+        prerelease: true
+    - id: release-linux-installer
+      name: Release Linux installer
+      uses: actions/upload-release-asset@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: elan_${{ github.ref_name }}_amd64.deb
+        asset_name: elan_${{ github.ref_name }}_amd64.deb
+        asset_content_type: application/x-binary
+    - id: release-windows-installer
+      name: Release Windows installer
+      uses: actions/upload-release-asset@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: ELAN-${{ github.ref_name }}.msi
+        asset_name: ELAN-${{ github.ref_name }}.msi
+        asset_content_type: application/x-binary
+        
+    - id: release-linux-appimage
+      name: Release Linux AppImage
+      uses: actions/upload-release-asset@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: ELAN-${{ github.ref_name }}.linux.zip
+        asset_name: ELAN-${{ github.ref_name }}.linux.zip
+        asset_content_type: application/x-binary        
