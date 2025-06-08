@@ -175,6 +175,7 @@ jobs:
     - id: zip-linux-appimage 
       run: |
         mv -v ELAN ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        chmod a+x ELAN-${{ env.ELAN_RELEASE_VERSION }}/bin/ELAN
         tar -czf ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.tar.gz ELAN-${{ env.ELAN_RELEASE_VERSION }}
         rm -rfv  ELAN-${{ env.ELAN_RELEASE_VERSION }}
         ls -l
