@@ -43,7 +43,8 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: |
-        echo "ELAN_RELEASE_VERSION: $ELAN_RELEASE_VERSION"
+        echo "ELAN_RELEASE_VERSION: ${{ env.ELAN_RELEASE_VERSION }}"
+        echo "ELAN_RELEASE_VERSION: ${ELAN_RELEASE_VERSION}"
         mvn -v
         mvn -B package --file pom.xml -Dexec.phase=install
         mkdir -p ./target/jpackage-input
