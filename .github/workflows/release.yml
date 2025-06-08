@@ -18,17 +18,17 @@ jobs:
 
   set-release-version:
     runs-on: ubuntu-latest
+    outputs:
+      release_version: ${{ steps.extract_version.outputs.ELAN_RELEASE_VERSION }}
     steps:
-      - name: Set Variable
-        run: echo "ELAN_RELEASE_VERSION=${GITHUB_REF_NAME#release-liepa3-}" >> $GITHUB_ENV
-      - name: Set Value
-        id: set_value
-        uses: noobly314/share-data@v1
-        with:
-          share-id: my_share_release_version
-          mode: set
-          key: ELAN_RELEASE_VERSION
-          value: ${ELAN_RELEASE_VERSION}"
+      - id: extract_version
+        run: |
+          TAG=${GITHUB_REF_NAME}
+          echo "TAG: $TAG"
+          ELAN_RELEASE_VERSION=${TAG#release-liepa3-}
+          echo "ELAN_RELEASE_VERSION: $ELAN_RELEASE_VERSION"
+          echo "ELAN_RELEASE_VERSION=${ELAN_RELEASE_VERSION}" >> "$GITHUB_OUTPUT"
+      
         
        
 ##########################################
@@ -38,15 +38,14 @@ jobs:
     runs-on: ubuntu-latest
     name: Build Installer on Linux
     needs: [set-release-version]
+    env:
+      ELAN_RELEASE_VERSION: ${{ needs.set-release-version.outputs.release_version }}
     steps:
       
     - name: Extract Version
       run: |
-        TAG=${GITHUB_REF_NAME}
-        echo "TAG: $TAG"
-        ELAN_RELEASE_VERSION=${TAG#release-liepa3-}
-        echo "ELAN_RELEASE_VERSION=${ELAN_RELEASE_VERSION}" >> $GITHUB_ENV
         echo "ELAN_RELEASE_VERSION: $ELAN_RELEASE_VERSION"
+        echo "needs.set-release-version.outputs.release_version: ${{needs.set-release-version.outputs.release_version}}"
 
     - uses: actions/checkout@v4
     - name: Set up JDK 21
