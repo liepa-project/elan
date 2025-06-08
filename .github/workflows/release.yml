@@ -173,7 +173,7 @@ jobs:
         name: windows-installer
         
     - id: zip-linux-appimage 
-      run: zip -qq -r ELAN-${ELAN_RELEASE_VERSION}.linux.zip ELAN
+      run: zip -qq -r ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.zip ELAN
 
     - id: list-downloaded-files
       run: ls -l
@@ -206,8 +206,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: elan_${ELAN_RELEASE_VERSION}_amd64.deb
-        asset_name: elan_${ELAN_RELEASE_VERSION}_amd64.deb
+        asset_path: elan_${{ env.ELAN_RELEASE_VERSION }}_amd64.deb
+        asset_name: elan_${{ env.ELAN_RELEASE_VERSION }}_amd64.deb
         asset_content_type: application/x-binary
     - id: release-windows-installer
       name: Release Windows installer
@@ -216,8 +216,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ELAN-${ELAN_RELEASE_VERSION}.msi
-        asset_name: ELAN-${ELAN_RELEASE_VERSION}.msi
+        asset_path: ELAN-${{ env.ELAN_RELEASE_VERSION }}.msi
+        asset_name: ELAN-${{ env.ELAN_RELEASE_VERSION }}.msi
         asset_content_type: application/x-binary
         
     - id: release-linux-appimage
@@ -227,6 +227,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ELAN-${ELAN_RELEASE_VERSION}.linux.zip
-        asset_name: ELAN-${ELAN_RELEASE_VERSION}.linux.zip
+        asset_path: ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.zip
+        asset_name: ELAN-${{  env.ELAN_RELEASE_VERSION }}.linux.zip
         asset_content_type: application/x-binary        
