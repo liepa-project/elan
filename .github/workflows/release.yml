@@ -174,9 +174,9 @@ jobs:
         
     - id: zip-linux-appimage 
       run: |
-        mv ELAN ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        mv -v ELAN ELAN-${{ env.ELAN_RELEASE_VERSION }}
         tar -czvf ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.tar.gz ELAN-${{ env.ELAN_RELEASE_VERSION }}
-        run: ls -l
+        ls -l
 
     - id: download-win-appimage
       name: Download Windows AppImage
