@@ -166,12 +166,6 @@ jobs:
       with:
         name: linux-appimage
 
-    - id: download-win-appimage
-      name: Download Windows AppImage
-      uses: actions/download-artifact@v4
-      with:
-        name: windows-appimage
-
     - id: download-windows-installer
       name: Download Windows installer
       uses: actions/download-artifact@v4
@@ -182,6 +176,14 @@ jobs:
       run: |
         mv ELAN ELAN-${{ env.ELAN_RELEASE_VERSION }}
         tar -czvf ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.tar.gz ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        run: ls -l
+
+    - id: download-win-appimage
+      name: Download Windows AppImage
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-appimage
+
 
     - id: list-downloaded-files
       run: ls -l
@@ -235,6 +237,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.zip
-        asset_name: ELAN-${{  env.ELAN_RELEASE_VERSION }}.linux.zip
+        asset_path: ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.tar.gz
+        asset_name: ELAN-${{  env.ELAN_RELEASE_VERSION }}.linux.tar.gz
         asset_content_type: application/x-binary        
