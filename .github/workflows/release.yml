@@ -34,8 +34,8 @@ jobs:
         mkdir -p ./target/jpackage-input
         cp target/elan-6.9.jar ./target/jpackage-input
         cp -r ./target/lib ./target/jpackage-input/lib
-        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-deb.cfg"
-        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-appimage.cfg"
+        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-deb.cfg" --app-version ${{ github.ref_name }}
+        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-appimage.cfg" --app-version ${{ github.ref_name }}
 
 
     # SAVE INSTALLER
@@ -82,8 +82,8 @@ jobs:
         mkdir -p ./target/jpackage-input
         cp target/elan-6.9.jar ./target/jpackage-input
         cp -r ./target/lib ./target/jpackage-input/lib
-        jpackage --verbose "@jpackage.cfg" "@jpackage-win.cfg"
-        jpackage --verbose "@jpackage.cfg" "@jpackage-win-appimage.cfg"
+        jpackage --verbose "@jpackage.cfg" "@jpackage-win.cfg" --app-version ${{ github.ref_name }}
+        jpackage --verbose "@jpackage.cfg" "@jpackage-win-appimage.cfg" --app-version ${{ github.ref_name }}
 
 # SAVE INSTALLER
     - id: upload-installer
