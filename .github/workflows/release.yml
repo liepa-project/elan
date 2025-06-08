@@ -166,6 +166,12 @@ jobs:
       with:
         name: linux-appimage
 
+    - id: download-win-appimage
+      name: Download Windows AppImage
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-appimage
+
     - id: download-windows-installer
       name: Download Windows installer
       uses: actions/download-artifact@v4
@@ -173,7 +179,9 @@ jobs:
         name: windows-installer
         
     - id: zip-linux-appimage 
-      run: zip -qq -r ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.zip ELAN
+      run: |
+        mv ELAN ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        tar -czvf ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.tar.gz ELAN-${{ env.ELAN_RELEASE_VERSION }}
 
     - id: list-downloaded-files
       run: ls -l
