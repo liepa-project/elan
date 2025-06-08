@@ -175,7 +175,8 @@ jobs:
     - id: zip-linux-appimage 
       run: |
         mv -v ELAN ELAN-${{ env.ELAN_RELEASE_VERSION }}
-        tar -czvf ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.tar.gz ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        tar -czf ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.tar.gz ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        rm -rfv  ELAN-${{ env.ELAN_RELEASE_VERSION }}
         ls -l
 
     - id: download-win-appimage
@@ -184,6 +185,12 @@ jobs:
       with:
         name: windows-appimage
 
+    - id: zip-win-appimage 
+      run: |
+        mv -v ELAN ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        zip -qq -r ELAN-${{ env.ELAN_RELEASE_VERSION }}.win.zip ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        rm -rfv  ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        ls -l
 
     - id: list-downloaded-files
       run: ls -l
@@ -239,4 +246,16 @@ jobs:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
         asset_path: ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.tar.gz
         asset_name: ELAN-${{  env.ELAN_RELEASE_VERSION }}.linux.tar.gz
+        asset_content_type: application/x-binary        
+
+
+    - id: release-win-appimage
+      name: Release Windows AppImage
+      uses: actions/upload-release-asset@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: ELAN-${{ env.ELAN_RELEASE_VERSION }}.win.zip
+        asset_name: ELAN-${{  env.ELAN_RELEASE_VERSION }}.win.zip
         asset_content_type: application/x-binary        
