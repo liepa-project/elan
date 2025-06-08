@@ -20,7 +20,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set Variable
-        run: echo "ELAN_RELEASE_VERSION=${GITHUB_REF_NAME#release-liepa3-}" >> $GITHUB_ENV
+        run: |
+          TAG=${GITHUB_REF_NAME}
+          echo "TAG: $TAG"
+          ELAN_RELEASE_VERSION=${TAG#release-liepa3-}
+          echo "ELAN_RELEASE_VERSION=${ELAN_RELEASE_VERSION}" >> $GITHUB_ENV
+          echo "ELAN_RELEASE_VERSION: $ELAN_RELEASE_VERSION"
         
 
   build-linux-installer:
@@ -38,13 +43,14 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: |
+        echo "ELAN_RELEASE_VERSION: $ELAN_RELEASE_VERSION"
         mvn -v
         mvn -B package --file pom.xml -Dexec.phase=install
         mkdir -p ./target/jpackage-input
         cp target/elan-6.9.jar ./target/jpackage-input
         cp -r ./target/lib ./target/jpackage-input/lib
-        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-deb.cfg" --app-version ${{ env.ELAN_RELEASE_VERSION }}
-        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-appimage.cfg" --app-version ${{ env.ELAN_RELEASE_VERSION }}
+        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-deb.cfg" --app-version ${ELAN_RELEASE_VERSION}
+        jpackage --verbose "@jpackage.cfg" "@jpackage-linux-appimage.cfg" --app-version ${ELAN_RELEASE_VERSION}
 
 
     # SAVE INSTALLER
@@ -52,7 +58,7 @@ jobs:
       name: Upload installer
       uses: actions/upload-artifact@v4
       with:
-        path: target/elan_${{ env.ELAN_RELEASE_VERSION }}_amd64.deb
+        path: target/elan_${ELAN_RELEASE_VERSION}_amd64.deb
         name: linux-installer
         retention-days: 1
 
@@ -139,7 +145,7 @@ jobs:
         name: windows-installer
         
     - id: zip-linux-appimage 
-      run: zip -qq -r ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.zip ELAN
+      run: zip -qq -r ELAN-${env.ELAN_RELEASE_VERSION}.linux.zip ELAN
 
     - id: list-downloaded-files
       run: ls -l
@@ -172,8 +178,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: elan_${{ env.ELAN_RELEASE_VERSION }}_amd64.deb
-        asset_name: elan_${{ env.ELAN_RELEASE_VERSION }}_amd64.deb
+        asset_path: elan_${ELAN_RELEASE_VERSION}_amd64.deb
+        asset_name: elan_${ELAN_RELEASE_VERSION}_amd64.deb
         asset_content_type: application/x-binary
     - id: release-windows-installer
       name: Release Windows installer
@@ -182,8 +188,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ELAN-${{ env.ELAN_RELEASE_VERSION }}.msi
-        asset_name: ELAN-${{ env.ELAN_RELEASE_VERSION }}.msi
+        asset_path: ELAN-${ELAN_RELEASE_VERSION}.msi
+        asset_name: ELAN-${env.ELAN_RELEASE_VERSION}.msi
         asset_content_type: application/x-binary
         
     - id: release-linux-appimage
@@ -193,6 +199,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.zip
-        asset_name: ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.zip
+        asset_path: ELAN-${ELAN_RELEASE_VERSION}.linux.zip
+        asset_name: ELAN-${ELAN_RELEASE_VERSION}.linux.zip
         asset_content_type: application/x-binary        
