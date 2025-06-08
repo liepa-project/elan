@@ -43,7 +43,7 @@ jobs:
       name: Upload installer
       uses: actions/upload-artifact@v4
       with:
-        path: target/elan_latest_amd64.deb
+        path: target/elan_${{ github.ref_name }}_amd64.deb
         name: linux-installer
         retention-days: 1
 
@@ -90,7 +90,7 @@ jobs:
       name: Upload installer
       uses: actions/upload-artifact@v4
       with:
-        path: target/ELAN-latest.msi
+        path: target/ELAN-${{ github.ref_name }}.msi
         name: windows-installer
         retention-days: 1
 
@@ -130,22 +130,22 @@ jobs:
         name: windows-installer
         
     - id: zip-linux-appimage 
-      run: zip -qq -r ELAN-latest.linux.zip ELAN
+      run: zip -qq -r ELAN-${{ github.ref_name }}.linux.zip ELAN
 
     - id: list-downloaded-files
       run: ls -l
 
 # CREATE GITHUB RELEASE AND ADD ASSETS
-    - id: tag
-      name: Move latest-release tag
-      shell: bash
-      if: false
-      run: |
-        # Move tag
-        git tag -d latest-release
-        git push --delete origin latest-release
-        git tag -a latest-release -m "Latest of a Release"
-        git push --follow-tags
+    # - id: tag
+    #   name: Move latest-release tag
+    #   shell: bash
+    #   if: false
+    #   run: |
+    #     # Move tag
+    #     git tag -d latest-release
+    #     git push --delete origin latest-release
+    #     git tag -a latest-release -m "Latest of a Release"
+    #     git push --follow-tags
     - id: create-release
       name: Create GitHub release
       uses: actions/create-release@v1
