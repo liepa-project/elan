@@ -174,10 +174,10 @@ jobs:
         
     - id: zip-linux-appimage 
       run: |
-        mv -v ELAN ELAN-${{ env.ELAN_RELEASE_VERSION }}
-        chmod a+x ELAN-${{ env.ELAN_RELEASE_VERSION }}/bin/ELAN
-        tar -czf ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.tar.gz ELAN-${{ env.ELAN_RELEASE_VERSION }}
-        rm -rfv  ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        mv -v ELAN ELAN-liepa-${{ env.ELAN_RELEASE_VERSION }}
+        chmod a+x ELAN-liepa-${{ env.ELAN_RELEASE_VERSION }}/bin/ELAN
+        tar -czf ELAN-${{ env.ELAN_RELEASE_VERSION }}.linux.tar.gz ELAN-liepa-${{ env.ELAN_RELEASE_VERSION }}
+        rm -rfv  ELAN-liepa-${{ env.ELAN_RELEASE_VERSION }}
         ls -l
 
     - id: download-win-appimage
@@ -188,9 +188,9 @@ jobs:
 
     - id: zip-win-appimage 
       run: |
-        mv -v ELAN ELAN-${{ env.ELAN_RELEASE_VERSION }}
-        zip -qq -r ELAN-${{ env.ELAN_RELEASE_VERSION }}.win.zip ELAN-${{ env.ELAN_RELEASE_VERSION }}
-        rm -rfv  ELAN-${{ env.ELAN_RELEASE_VERSION }}
+        mv -v ELAN ELAN-liepa-${{ env.ELAN_RELEASE_VERSION }}
+        zip -qq -r ELAN-${{ env.ELAN_RELEASE_VERSION }}.win.zip ELAN-liepa-${{ env.ELAN_RELEASE_VERSION }}
+        rm -rfv  ELAN-liepa-${{ env.ELAN_RELEASE_VERSION }}
         ls -l
 
     - id: list-downloaded-files
